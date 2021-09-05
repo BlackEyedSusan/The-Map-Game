@@ -1,7 +1,8 @@
 from territories import Territories
 
 # Initializes all territories to be NPC owned at the start, and creates all of the territories
-abia = Territories(1)
+# Order of stats is: [GDP, Population, Area, Coast, GDP per Capita, Population Density, Iron, Aluminum, Silver, Gold, Oil, Number of Ports, Number of Forts]
+abia = Territories(1, 'Abia', 'NPC', [8618000000, 3727347, 1884, False, 2312.10, 1978.42, False, False, False, False, False, 0, 0])
 abidjan = Territories(2)
 abu_dhabi = Territories(3)
 abuja = Territories(4)
