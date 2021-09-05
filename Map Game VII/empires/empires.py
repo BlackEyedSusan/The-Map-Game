@@ -9,6 +9,8 @@ class Empires:
         self.name = name
         self.user = user
         self.capital = capital
+        self.is_puppet = False
+        self.at_war = False
 
     def get_territories(self, territories):
         pass
