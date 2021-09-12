@@ -1,5 +1,6 @@
 from map_assets import territories
 
+
 # a relic of a bygone era
 # Initializes all territories to be NPC owned at the start, and creates all of the territories
 # Order of stats is: [GDP, Population, Area, Coast, GDP per Capita, Population Density, Iron, Aluminum, Silver, Gold, Oil, Number of Ports, Number of Forts]
