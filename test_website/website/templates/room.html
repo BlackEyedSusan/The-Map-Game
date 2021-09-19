@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %}{{ game }}{% endblock %}
+
+{% block content %}
+<h1 align="center"> {{ game }} </h1>
+<br/>
+<h2>Players</h2>
+{{% for player in players %}}
+<h3>{{ player }}</h3>
+{{% endfor %}}
+{% endblock %}
