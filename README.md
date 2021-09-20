@@ -1,8 +1,6 @@
 # The-Map-Game
 Tips:
-location_id is the same thing as the territory id
-the __init__ function of the classes declare attributes of that class upon creation
-the __init__.py files can be left alone, I can handle what goes in there
-the del keyword deletes objects (which can be used to delete military units upon death)
-the default map stats holds what the map should be by default, right now it creates all of the objects (territories in this case)
-make sure you don't cut other code off from working
+The html files are used solely to generate pages specific to a user
+Static folder is for JavaScript, CSS and other static assets like images or sound files
+Templates is only for html templates
+Anything in {{}} or {%%} on html files is Jinji, and that is basically python embedded in html
