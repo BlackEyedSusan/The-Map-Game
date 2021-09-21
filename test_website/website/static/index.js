@@ -1,1 +1,1 @@
-//ha no its not noob
+document.getElementById("user_name").style.color = "lightgray";
