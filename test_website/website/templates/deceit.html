@@ -1,0 +1,36 @@
+{% extends "base.html" %} {% block title %}Deceit{% endblock %}
+
+{% block content %}
+<img src="/static/AdolfDeceitler.jpg" alt="A very great photoshop I promise.">
+<head>
+    <style>
+        h1.blue {
+            color: blue;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>I AM GOD</h1>
+    <hr style="width:90%;text-align:center;border-width:5;height:5px">
+    <p>I am god because I am god</p>
+    <video id="myVid" width="1000" height="500">
+        <source src="/static/DECEIT.mp4" type="video/mp4">
+         Sorry, your browser does not support HTML5 video.
+    </video>
+    <br/>
+    <button onclick="playVideo()" type="button">Play</button>
+    <button onclick="pauseVideo()" type="button">Pause</button><br>
+    <script type="text/javascript" src="/static/deceit.js"></script>
+    <h1 class="blue">
+        For More on my God Complex, see <br/>
+        <a href="https://en.wikipedia.org/wiki/God_complex">here</a>
+    </h1>
+    <hr style="width:90%;text-align:center;border-width:5;height:5px">
+    <img src="/static/schlafly.jpg" alt="A picture of me. I'm SO HOT!!" width="100" height="100">
+    <p>here's ME! GOD!</p>
+</body>
+
+{% endblock %}
+
+

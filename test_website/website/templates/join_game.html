@@ -1,0 +1,14 @@
+{% extends "base.html" %} {% block title %}Join a game in progress{% endblock %}
+
+{% block content %}
+<br/>
+<form method="POST">
+    <h3 align="left">Join Game</h3>
+    <div class="form-group">
+        <label for="code">Code</label>
+        <input type="text" class="form-control" id="code" name="code" placeholder="Enter code"/>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Join Game</button>
+</form>
+{% endblock %}
