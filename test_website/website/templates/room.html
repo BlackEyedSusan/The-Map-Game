@@ -1,12 +1,15 @@
 {% extends "base.html" %} {% block title %}{{ game }}{% endblock %}
 
 {% block content %}
+<head>
+    <script type="text/javascript" src="/static/rooms.js"></script>
+</head>
 <br/>
 <h1 align="center"> {{ game }} </h1>
 <br/>
 <h2>Players:</h2>
 {% for player in players %}
 <h3>{{ player.username }}</h3>
-<script type="text/javascript" src="/js/rooms.js"></script>
 {% endfor %}
+<button id="start_game" onclick="startGame()"><a href="{{url_for('rooms.map', game_id=game_id)}}">Start Game</a></button>
 {% endblock %}
