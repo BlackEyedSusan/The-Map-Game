@@ -31,7 +31,7 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(rooms, url_prefix='/rooms/')
-    app.register_blueprint(rooms, url_prefix='/user/')
+    app.register_blueprint(profiles, url_prefix='/user/')
 
     from .models import User, Empires, Game, GamesJoined
     

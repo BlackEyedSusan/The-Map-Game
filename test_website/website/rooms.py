@@ -11,7 +11,6 @@ rooms = Blueprint('rooms', __name__)
 @login_required
 def room(game_id):
     if request.method == "POST":
-        print("worked thus far")
         empire = request.form.get('empire')
         empire_query = Empires.query.filter_by(name=empire)
         if empire_query == empire:
@@ -21,7 +20,6 @@ def room(game_id):
         if len(empire) > 200:
             flash('The max empire name length is 199 characters.')
         else:
-            print("Reached this far")
             new_empire = Empires(name=empire, user=current_user.id, game=game_id)
             empire_query = Empires.query.filter_by(game=game_id, user=current_user.id).first()
             if empire_query:
@@ -42,7 +40,7 @@ def room(game_id):
         players.append(filtered.user)
     for player in players:
         for result in db.session.query(User).filter_by(id=player):
-            players_output.append(result)
+            players_output.append([result, url_for('profiles.profile', user_id=result.id)])
     for empire in db.session.query(Empires).filter_by(game=id):
         empires[f"{empire.user}"]=empire.name
         print(empire.name)

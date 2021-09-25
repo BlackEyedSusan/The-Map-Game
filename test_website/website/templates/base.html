@@ -37,7 +37,7 @@
               {% endif %}
             </div>
         </div>
-        <div id="user_name" align="right">{{ user.username }}</div>
+        <div id="user_name" align="right"><a id="user_link" href="{{url_for('profiles.profile', user_id=user.id)}}">{{ user.username }}</a></div>
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

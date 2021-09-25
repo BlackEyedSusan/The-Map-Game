@@ -12,9 +12,9 @@
 {% for player in players %}
     {% set empire_name = "No Empire Name" %}
     {% for key, value in empire_key.items() %}
-        {% if key|string() == player.id|string() %}
+        {% if key|string() == player[0].id|string() %}
             {% set empire_name = value %}
-            <h3>{{empire_name}} ({{ player.username }})</h3>
+            <h3>{{empire_name}} <a href="{{player[1]}}">({{ player[0].username }})</a></h3>
         {% endif %}
     {% endfor %}
      
@@ -28,5 +28,5 @@
     <br/>
     <button type="submit">Set</button>
 </form>
-<button id="start_game" onclick="startGame()"><a href="{{url_for('rooms.map', game_id=game_id)}}">Start Game</a></button>
+<button id="start_game" onclick="startGame()">Start Game</button>
 {% endblock %}

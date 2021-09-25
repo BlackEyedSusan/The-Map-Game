@@ -1,1 +1,1 @@
-document.getElementById("user_name").style.color = "lightgray";
+document.getElementById("user_link").style.color = "lightgray";
