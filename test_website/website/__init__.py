@@ -2,7 +2,9 @@ from flask import Flask
 from os import path
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from flask_socketio import SocketIO
+
 
 db = SQLAlchemy()
 DB_NAME = "users.db"
@@ -15,17 +17,21 @@ importing()
 def create_app():
 
     app = Flask(__name__)
+    
     app.config['SECRET_KEY'] = 'ga8925asdgDgls10352;aDg'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
+    ma = Marshmallow(app)
 
     from .views import views
     from .auth import auth
     from .rooms import rooms
+    from .profiles import profiles
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(rooms, url_prefix='/rooms/')
+    app.register_blueprint(rooms, url_prefix='/user/')
 
     from .models import User, Empires, Game, GamesJoined
     
@@ -45,3 +51,5 @@ def create_database(app):
     if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database.')
+
+        

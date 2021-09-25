@@ -8,8 +8,25 @@
 <h1 align="center"> {{ game }} </h1>
 <br/>
 <h2>Players:</h2>
+<div>
 {% for player in players %}
-<h3>{{ player.username }}</h3>
+    {% set empire_name = "No Empire Name" %}
+    {% for key, value in empire_key.items() %}
+        {% if key|string() == player.id|string() %}
+            {% set empire_name = value %}
+            <h3>{{empire_name}} ({{ player.username }})</h3>
+        {% endif %}
+    {% endfor %}
+     
 {% endfor %}
+</div>
+<form method="POST">
+    <div>
+        <label for="empire">Empire Name</label>
+        <input type="text" class="form-control" id="empire" name="empire" placeholder="Enter empire name"/>
+    </div>
+    <br/>
+    <button type="submit">Set</button>
+</form>
 <button id="start_game" onclick="startGame()"><a href="{{url_for('rooms.map', game_id=game_id)}}">Start Game</a></button>
 {% endblock %}

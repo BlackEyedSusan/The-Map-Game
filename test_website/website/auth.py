@@ -44,7 +44,7 @@ def sign_up():
         username = request.form.get('username')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
-
+        
         user = User.query.filter_by(email=email).first()
         if user:
             flash('This email is already registered.', category='error')
@@ -60,9 +60,9 @@ def sign_up():
             new_user = User(email=email, username=username, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
-            login_user(user, remember=True)
+            login_user(new_user, remember=True)
             flash('Account created successfully.', category='success')
-            return redirect(url_for('views.join-game'))
+            return redirect(url_for('views.join_game'))
 
 
     return render_template('sign_up.html', user=current_user)

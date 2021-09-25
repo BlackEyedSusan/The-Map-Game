@@ -1,6 +1,8 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 import random
+
 
 from . import db
 
@@ -19,7 +21,8 @@ class GamesJoined(db.Model):
 class Empires(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    game = db.Column(db.Integer, db.ForeignKey('game.id'))
 
 
 class User(db.Model, UserMixin):
@@ -27,4 +30,3 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     username = db.Column(db.String(150))
-    empire = db.relationship('Empires')
