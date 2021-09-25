@@ -1,0 +1,12 @@
+{% extends "base.html" %} {% block title %}{{user.username}}'s Profile{% endblock %}
+
+{% block content %}
+<br/>
+<h1 id="heading">{{user.username}}'s Profile</h1>
+<br/>
+<h3>Stats:</h3>
+<ul>
+    <li><h5>Games Joined: {{ games_joined }}</h5></li>
+</ul>
+<script type="text/javascript" src="/static/profile.js"></script>
+{% endblock %}

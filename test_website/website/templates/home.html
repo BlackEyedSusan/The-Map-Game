@@ -5,11 +5,13 @@
 <body>
     {% if games_joined != [] %}
     {% set counter = 0 %}
+    <div id="game_list">
     {% for game in games_joined %}
         {% set counter = counter+1 %}
         <h2><a id="game_headings{{counter}}" href={{game[1]}}>Game: {{ game[0].game_name }}</a></h2> <h4>Code: {{ game[0].code }}</h4> <br/>
 
     {% endfor %}
+    </div>
     {% else %}
         <h1>No games joined currently. Join one <a>here</a></h1>
     {% endif %}
