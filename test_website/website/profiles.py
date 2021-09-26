@@ -14,7 +14,6 @@ def profile(user_id):
     counter=0
     for games in GamesJoined.query.filter_by(id=user_id):
         counter += 1
-    print(user)
     if user == current_user:
         is_current_user = True
     else:

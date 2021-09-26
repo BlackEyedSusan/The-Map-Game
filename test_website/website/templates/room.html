@@ -13,11 +13,10 @@
     {% set empire_name = "No Empire Name" %}
     {% for key, value in empire_key.items() %}
         {% if key|string() == player[0].id|string() %}
-            {% set empire_name = value %}
-            <h3>{{empire_name}} <a href="{{player[1]}}">({{ player[0].username }})</a></h3>
+            {% set empire_name = value %} 
+            <div><div class="box {{used_colors[loop.index0]}}"></div><h3>{{empire_name}} <a href="{{player[1]}}">({{ player[0].username }})</a></h3></div>    
         {% endif %}
     {% endfor %}
-     
 {% endfor %}
 </div>
 <form method="POST">
