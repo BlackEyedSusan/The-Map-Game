@@ -15,7 +15,7 @@
       href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" type="text/css" href="/static/main.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
 
     <title>{% block title %}Map Game{% endblock %}</title>
 </head>
@@ -38,8 +38,10 @@
               {% endif %}
             </div>
         </div>
+        {% if user.is_authenticated %}
         <div id="user_name" align="right"><a id="user_link" href="{{url_for('profiles.profile', user_id=user.id)}}">{{ user.username }}</a></div>
-    </nav>
+        {% endif %}
+      </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

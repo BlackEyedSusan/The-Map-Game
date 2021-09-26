@@ -46,15 +46,15 @@ def join_game():
 @views.route('/create-game', methods=["GET", "POST"])
 @login_required
 def create_game():
-    code = (''.join(random.choice(letters) for i in range(6)))
     if request.method == "POST":
+        code = (''.join(random.choice(letters) for i in range(6)))
         username = current_user.username
         name = request.form.get('game_name')
         if len(name) < 4:
             flash('The game room\'s name must be at least 4 characters.', category='error')
         else:
             game = Game.query.filter_by(code=code).first()
-            new_game = Game(game_name=name, code=code)
+            new_game = Game(game_name=name, code=code, host=current_user.id)
             db.session.add(new_game)
             db.session.commit()
             game = Game.query.filter_by(code=code).first()
@@ -62,9 +62,4 @@ def create_game():
             db.session.commit()
             flash('Game Created!', category='success')
             return redirect(url_for('views.home'))
-    return render_template("create_game.html", user=current_user, code=code)
-
-
-'''@views.route(f'')
-@login_required
-def''' 
+    return render_template("create_game.html", user=current_user)

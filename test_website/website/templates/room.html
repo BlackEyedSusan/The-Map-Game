@@ -24,9 +24,19 @@
     <div>
         <label for="empire">Empire Name</label>
         <input type="text" class="form-control" id="empire" name="empire" placeholder="Enter empire name"/>
+        <label for="color_input">Color</label>
+        <select id="color_input" name="color_input" aria-placeholder="Pick a color">
+            {% for color in colors %}
+                {% if color[1] not in used_colors %}
+                    <option value = "{{color[1]}}">{{color[1]}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
     </div>
     <br/>
     <button type="submit">Set</button>
 </form>
-<button id="start_game" onclick="startGame()">Start Game</button>
+{% if is_host %}
+    <button id="start_game" onclick="startGame()">Start Game</button>
+{% endif %}
 {% endblock %}
