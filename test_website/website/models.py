@@ -10,6 +10,7 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_name = db.Column(db.String(25))
     code = db.Column(db.String(10))
+    host = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
 class GamesJoined(db.Model):
@@ -21,9 +22,10 @@ class GamesJoined(db.Model):
 class Empires(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
+    color = db.Column(db.String(7))
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
-
+    
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
