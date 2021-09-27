@@ -1,11 +1,11 @@
-{% extends "base.html" %} {% block title %}{{ game }}{% endblock %}
+{% extends "base.html" %} {% block title %}{{ game.game_name }}{% endblock %}
 
 {% block content %}
 <head>
     <script type="text/javascript" src="/static/rooms.js"></script>
 </head>
 <br/>
-<h1 align="center"> {{ game }} </h1>
+<h1 align="center"> {{ game.game_name }} </h1>
 <br/>
 <h2>Players:</h2>
 <div>
@@ -19,16 +19,19 @@
     {% endfor %}
 {% endfor %}
 </div>
+<hr>
 <form method="POST">
     <div>
         <label for="empire">Empire Name</label>
-        <input type="text" class="form-control" id="empire" name="empire" placeholder="Enter empire name"/>
+        {% if current_empire == "None" %}
+            <input type="text" id="empire" name="empire" placeholder="Enter empire name"/>
+        {% else %}
+            <input type="text" value = "{{current_empire.name}}" id="empire" name="empire" placeholder="Enter empire name"/>
+        {% endif %}
         <label for="color_input">Color</label>
         <select id="color_input" name="color_input" aria-placeholder="Pick a color">
-            {% for color in colors %}
-                {% if color[1] not in used_colors %}
-                    <option value = "{{color[1]}}">{{color[1]}}</option>
-                {% endif %}
+            {% for color in avail_colors %}
+                <option value = "{{color[2]}}">{{color[1]}}</option>
             {% endfor %}
         </select>
     </div>
@@ -36,6 +39,6 @@
     <button type="submit">Set</button>
 </form>
 {% if is_host %}
-    <button id="start_game" onclick="startGame()">Start Game</button>
+    <a href="{{url_for('rooms.map', game_id=game_id)}}"><button id="start_game" onclick=>Start Game</button></a>
 {% endif %}
 {% endblock %}

@@ -10,6 +10,9 @@ letters = string.ascii_letters
 views = Blueprint('views', __name__)
 
 
+#the command decorators declare where the path is in relation to the default path for 
+#this type of route, and it also declares what methods it can use. (default is only GET)
+#You can also set it so you can only access the page if you are logged in.
 @views.route('/', methods=["GET", "POST"])
 @login_required
 def home():
@@ -20,6 +23,8 @@ def home():
             links = (filtered, url_for('rooms.room', game_id=id))
             game.append(links)
         
+    #the render template function can take in as many keyword arguments as variables to be used 
+    #in the jinja of the html file
     return render_template("home.html", user=current_user, games_joined = game)
 
 @views.route('/deceit')
@@ -32,13 +37,23 @@ def deceit():
 def join_game():
     if request.method == "POST":
         code = request.form.get("code")
-        print(code)
+        #you can query the database with this syntax, and if you don't use first(), you
+        #get a list of objects inside the database
         check = db.session.query(Game).filter_by(code=code).first()
         if check:
-            db.session.add(GamesJoined(user=current_user.id, game=check.id))
-            db.session.commit()
-            flash('Game Joined!', category='success')
-            return redirect(url_for('views.home'))
+            amt_players = db.session.query(GamesJoined).filter_by(game=check.id)
+            counter = 0
+            for player in amt_players:
+                counter += 1
+            if counter >= 13:
+                flash('Game is full.', category='error')
+            else:
+                db.session.add(GamesJoined(user=current_user.id, game=check.id))
+                db.session.commit()
+                flash('Game Joined!', category='success')
+                #use url_for() instead of writing the direct url because if the other urls
+                #change for whatever reason, it won't break the code.
+                return redirect(url_for('views.home'))
         else:
             flash('Incorrect Code.', category='error')
     return render_template("join_game.html", user=current_user)

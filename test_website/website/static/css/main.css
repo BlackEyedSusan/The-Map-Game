@@ -4,11 +4,16 @@
 
 .box {
     float: left;
-    height: 20px;
-    width: 20px;
-    margin-bottom: 15px;
+    height: 33px;
+    width: 33px;
+    margin-bottom: 0px;
     border: 1px solid black;
+    border-radius: 5px;
     clear: both;
+}
+
+.white {
+    background-color: #FFFFFF;
 }
   
 .red {
