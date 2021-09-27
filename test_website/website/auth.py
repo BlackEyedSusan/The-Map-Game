@@ -13,6 +13,8 @@ auth = Blueprint('auth', __name__)
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        #this is how you handle forms, you can do some other special things with them
+        #as well
         email = request.form.get('email')
         password = request.form.get('password')
 
@@ -57,12 +59,13 @@ def sign_up():
         elif len(password1) < 7:
             flash('Must have a password over 7 characters.', category='error')
         else:
+            #for example here, you generate a password hash so you cannot reverse engineer the password, which adds security
             new_user = User(email=email, username=username, password=generate_password_hash(password1, method='sha256'))
             db.session.add(new_user)
             db.session.commit()
-            login_user(new_user, remember=True)
+            login_user(new_user, remember=True) #I haven't made remember user togglable yet,
+            #but it wouldn't be too hard to add a checkbox here
             flash('Account created successfully.', category='success')
             return redirect(url_for('views.join_game'))
-
-
+            
     return render_template('sign_up.html', user=current_user)
