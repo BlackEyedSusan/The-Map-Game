@@ -39,7 +39,7 @@ def create_app():
     #these register the different paths, (they are in the different files) and sets the 
     #base path for them
 
-    from .models import User, Empires, Game, GamesJoined
+    from .models import User, Empires, Game, GamesJoined, Friends
     
     create_database(app)
    
