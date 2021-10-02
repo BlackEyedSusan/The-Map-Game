@@ -22,23 +22,40 @@
 <hr>
 <form method="POST">
     <div>
-        <label for="empire">Empire Name</label>
+        <label for="empire">Empire Name: </label>
         {% if current_empire == "None" %}
             <input type="text" id="empire" name="empire" placeholder="Enter empire name"/>
         {% else %}
             <input type="text" value = "{{current_empire.name}}" id="empire" name="empire" placeholder="Enter empire name"/>
         {% endif %}
-        <label for="color_input">Color</label>
+        <label for="color_input">Color: </label>
         <select id="color_input" name="color_input" aria-placeholder="Pick a color">
             {% for color in avail_colors %}
-                <option value = "{{color[2]}}">{{color[1]}}</option>
+                <option selected="{{current_color}}" value = "{{color[2]}}">{{color[1]}}</option>
             {% endfor %}
         </select>
+        <label for="gov">Government: </label>
+        <select id="gov" name="gov" aria-placeholder="Pick a government">
+            {% for gov in govs %}
+                {% if gov[0] == current_gov %}
+                    <option selected value="{{gov[0]}}">{{gov[0]}}</option>
+                {% else %}
+                    <option value="{{gov[0]}}">{{gov[0]}}</option>
+                {% endif %}
+            {% endfor %}
+
+        </select>
+        <input type="hidden" id="update_empire" name="update_empire" value="update_empire">
     </div>
     <br/>
+    <h4>Current Government: {{current_gov}}</h4>
     <button type="submit">Set</button>
 </form>
+
 {% if is_host %}
-    <a href="{{url_for('rooms.map', game_id=game_id)}}"><button id="start_game" onclick=>Start Game</button></a>
+    <form method="POST">
+        <input type="hidden" id="startgame" name="start_game" value="start_game">
+        <button type="sumbit" id="start_game" value="start_game">Start Game</button>
+    </form>
 {% endif %}
 {% endblock %}

@@ -14,7 +14,8 @@ class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_name = db.Column(db.String(25))
     #The number is to tell it the max length of the string.
-    code = db.Column(db.String(10))
+    is_started = db.Column(db.String(5))
+    code = db.Column(db.String(10), unique=True)
     host = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
@@ -28,9 +29,29 @@ class Empires(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     color = db.Column(db.String(7))
+    gov = db.Column(db.String(50))
     #You can use foreign keys to relate tables together
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
+
+
+class Territories(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    owner = db.Column(db.Integer)
+    game = db.Column(db.Integer, db.ForeignKey('game.id'))
+    pop = db.Column(db.Integer)
+    gdp = db.Column(db.Integer)
+    area = db.Column(db.Integer)
+    oil = db.Column(db.String(5))
+    uranium = db.Column(db.String(5))
+    gold = db.Column(db.String(5))
+    biome = db.Column(db.String(20))
+
+
+class Friends(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user1 = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user2 = db.Column(db.Integer, db.ForeignKey('user.id'))
     
 
 class User(db.Model, UserMixin):

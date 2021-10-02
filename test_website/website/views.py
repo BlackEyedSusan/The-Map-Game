@@ -62,14 +62,21 @@ def join_game():
 @login_required
 def create_game():
     if request.method == "POST":
-        code = (''.join(random.choice(letters) for i in range(6)))
+        worked = False
+        while worked == False:
+            code = (''.join(random.choice(letters) for i in range(6)))
+            check = db.session.query(Game).filter_by(code=code).first()
+            if check == None:
+                worked = True
+            elif code != check.code:
+                worked = True
         username = current_user.username
         name = request.form.get('game_name')
         if len(name) < 4:
             flash('The game room\'s name must be at least 4 characters.', category='error')
         else:
             game = Game.query.filter_by(code=code).first()
-            new_game = Game(game_name=name, code=code, host=current_user.id)
+            new_game = Game(game_name=name, code=code, host=current_user.id, is_started="False")
             db.session.add(new_game)
             db.session.commit()
             game = Game.query.filter_by(code=code).first()
