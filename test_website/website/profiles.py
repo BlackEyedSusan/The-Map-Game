@@ -49,4 +49,4 @@ def profile(user_id):
         is_current_user = True
     else:
         is_current_user = False
-    return render_template('profile.html', is_current=is_current_user, user=user, games_joined=counter, is_friends=is_friends)
+    return render_template('profile.html', is_current=is_current_user, user=current_user, player=user, games_joined=counter, is_friends=is_friends)
