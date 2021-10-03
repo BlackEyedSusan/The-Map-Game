@@ -47,7 +47,7 @@ def join_game():
                 counter += 1
             if counter >= 13:
                 flash('Game is full.', category='error')
-            elif check.is_started:
+            elif check.is_started == "True":
                 flash('Game has already started.', category='error')
             else:
                 db.session.add(GamesJoined(user=current_user.id, game=check.id))
