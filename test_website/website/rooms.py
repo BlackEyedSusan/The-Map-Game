@@ -6,7 +6,34 @@ import sqlite3 as dbapi
 import json
 
 rooms = Blueprint('rooms', __name__)
-
+colors = [['#FF0000', 'Red', 'red'],
+            ['#FF4400', 'Neon Orange', 'neon-orange'], 
+            ['#FF80000', 'Orange', 'orange'], 
+            ['#FFBF00', 'Mustard Yellow', 'mustard-yellow'], 
+            ["#FFFF00", 'Yellow', 'yellow'], 
+            ['#80FF00', 'Lime Green', 'lime-green'],
+            ['#00FF40', 'Neon Green', 'neon-green'],
+            ['#00FFBF', 'Aquamarine', 'aquamarine'],
+            ['#0080FF', 'Blue', 'blue'],
+            ['#0000FF', 'Dark Blue', 'dark-blue'],
+            ['#8000FF', 'Purple', 'purple'],
+            ['#FF00FF', 'Pink', 'pink'],
+            ['#FF0080', 'Salmon', 'salmon']]
+governments = [['Thassalocracy', 'thassalocracy'],
+                ['Monarchy', 'monarchy'],
+                ['Aristocracy', 'aristocracy'],
+                ['Authoritarian Communism', 'authoritarian-communism'],
+                ['Anarchy', 'anarchy'],
+                ['Democracy', 'democracy'],
+                ['Fascism', 'fascism'],
+                ['Theocracy', 'theocracy'],
+                ['Corporate Republic', 'corporate-republic'],
+                ['Military Dictatorship', 'military-dictatorship'],
+                ['Fuedalist Kingdom', 'fuedalist-kingdom'],
+                ['Kleptocracy', 'kleptocracy'],
+                ['Chiefdom', 'chiefdom'],
+                ['Anocracy', 'anocracy'],
+                ]
 @rooms.route('<int:game_id>', methods=["GET", "POST"])
 @login_required
 def room(game_id):
@@ -69,34 +96,6 @@ def room(game_id):
                 return redirect(url_for('rooms.room', game_id=game_id))
 
         #this is where all of the colors that can be used for the 
-    colors = [['#FF0000', 'Red', 'red'],
-             ['#FF4400', 'Neon Orange', 'neon-orange'], 
-             ['#FF80000', 'Orange', 'orange'], 
-             ['#FFBF00', 'Mustard Yellow', 'mustard-yellow'], 
-             ["#FFFF00", 'Yellow', 'yellow'], 
-             ['#80FF00', 'Lime Green', 'lime-green'],
-             ['#00FF40', 'Neon Green', 'neon-green'],
-             ['#00FFBF', 'Aquamarine', 'aquamarine'],
-             ['#0080FF', 'Blue', 'blue'],
-             ['#0000FF', 'Dark Blue', 'dark-blue'],
-             ['#8000FF', 'Purple', 'purple'],
-             ['#FF00FF', 'Pink', 'pink'],
-             ['#FF0080', 'Salmon', 'salmon']]
-    governments = [['Thassalocracy', 'thassalocracy'],
-                    ['Monarchy', 'monarchy'],
-                    ['Aristocracy', 'aristocracy'],
-                    ['Authoritarian Communism', 'authoritarian-communism'],
-                    ['Anarchy', 'anarchy'],
-                    ['Democracy', 'democracy'],
-                    ['Fascism', 'fascism'],
-                    ['Theocracy', 'theocracy'],
-                    ['Corporate Republic', 'corporate-republic'],
-                    ['Military Dictatorship', 'military-dictatorship'],
-                    ['Fuedalist Kingdom', 'fuedalist-kingdom'],
-                    ['Kleptocracy', 'kleptocracy'],
-                    ['Chiefdom', 'chiefdom'],
-                    ['Anocracy', 'anocracy'],
-                    ]
     players = []
     players_output = []
     #it was just easier to use a dictionary specifically for this one
@@ -141,34 +140,6 @@ def room(game_id):
 @rooms.route('<int:game_id>/map', methods=['POST', 'GET'])
 @login_required
 def map(game_id):
-    colors = [['#FF0000', 'Red', 'red'],
-             ['#FF4400', 'Neon Orange', 'neon-orange'], 
-             ['#FF80000', 'Orange', 'orange'], 
-             ['#FFBF00', 'Mustard Yellow', 'mustard-yellow'], 
-             ["#FFFF00", 'Yellow', 'yellow'], 
-             ['#80FF00', 'Lime Green', 'lime-green'],
-             ['#00FF40', 'Neon Green', 'neon-green'],
-             ['#00FFBF', 'Aquamarine', 'aquamarine'],
-             ['#0080FF', 'Blue', 'blue'],
-             ['#0000FF', 'Dark Blue', 'dark-blue'],
-             ['#8000FF', 'Purple', 'purple'],
-             ['#FF00FF', 'Pink', 'pink'],
-             ['#FF0080', 'Salmon', 'salmon']]
-    governments = [['Thassalocracy', 'thassalocracy'],
-                    ['Monarchy', 'monarchy'],
-                    ['Aristocracy', 'aristocracy'],
-                    ['Authoritarian Communism', 'authoritarian-communism'],
-                    ['Anarchy', 'anarchy'],
-                    ['Democracy', 'democracy'],
-                    ['Fascism', 'fascism'],
-                    ['Theocracy', 'theocracy'],
-                    ['Corporate Republic', 'corporate-republic'],
-                    ['Military Dictatorship', 'military-dictatorship'],
-                    ['Fuedalist Kingdom', 'fuedalist-kingdom'],
-                    ['Kleptocracy', 'kleptocracy'],
-                    ['Chiefdom', 'chiefdom'],
-                    ['Anocracy', 'anocracy'],
-                    ]
     players = []
     players_output = []
     #it was just easier to use a dictionary specifically for this one
@@ -211,6 +182,59 @@ def map(game_id):
     for territory in db.session.query(Territories):
         territory_list.append(territory)
     return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
+
+@login_required
+@rooms.route('<int:game_id>/diplomacy', methods=['GET', 'POST'])
+def diplomacy(game_id):
+    players = []
+    players_output = []
+    #it was just easier to use a dictionary specifically for this one
+    empires = []
+    empire_colors = []
+    avail_colors = []
+    id = game_id
+    current_gov = None
+    current_color = None
+    current_tag = None
+    current_empire = "None"
+    games = db.session.query(Game).filter_by(id = game_id).first()
+    if current_user.id == games.host:
+        is_host = True
+    else:
+        is_host = False
+    for filtered in db.session.query(GamesJoined).filter_by(game = game_id):
+        players.append(filtered.user)
+    for player in players:
+        for result in db.session.query(User).filter_by(id=player):
+            players_output.append([result, url_for('profiles.profile', user_id=result.id)])
+    for empire in db.session.query(Empires).filter_by(game=id):
+        empires.append([empire.name, url_for('rooms.diplomacyplayer', game_id=game_id, empire_id=empire.id)])
+        if empire.user == current_user.id:
+            current_empire = empire
+            current_gov = current_empire.gov
+            current_color = current_empire.color
+        if empire.color != "None":
+            fixed_empire_color = str(empire.color).lower().replace(' ', '-')
+            empire_colors.append(fixed_empire_color)
+        else:
+            empire_colors.append('white')
+    for color in colors:
+        if color[2] == current_color:
+            current_tag = color[0]
+        if color[2] not in empire_colors:
+            avail_colors.append(color)
+    avail_colors.append([current_tag, str(current_color).title().replace('-', ' '), current_color])
+    territory_list = []
+    for territory in db.session.query(Territories):
+        territory_list.append(territory)
+    return render_template("diplomacy.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
+
+@login_required
+@rooms.route('<int:game_id>/diplomacy/<empire_id>', methods=['GET', 'POST'])
+def diplomacyplayer(game_id, empire_id):
+    target_empire = db.session.query(Empires).filter_by(id=empire_id).first()
+    current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id)
+    return render_template("diplomacyplayer.html", user=current_user, target_empire=target_empire, current_empire=current_empire)
 
 
 def init_territories_default(game_id, DEFAULT_OWNER=0):

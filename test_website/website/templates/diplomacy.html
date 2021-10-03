@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block title %}Diplomacy{% endblock %}
+
+{% block content %} 
+{% for empire in empire_key %}
+    <a href='{{empire[1]}}'>{{ empire[0] }}</a>
+{% endfor %}
+
+
+
+
+{% endblock %}
