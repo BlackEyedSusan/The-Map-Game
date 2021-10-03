@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, url_for, redirect, jsonify
 from flask_login import login_required, current_user
-from .models import Game, GamesJoined, User, Empires
+from .models import Game, GamesJoined, Territories, User, Empires
 from . import db
 import sqlite3 as dbapi
 import json
@@ -11,16 +11,34 @@ rooms = Blueprint('rooms', __name__)
 @login_required
 def room(game_id):
     current_game = db.session.query(Game).filter_by(id=game_id).first()
+
     if str(current_game.is_started) == "True":
         return redirect(url_for('rooms.map', game_id=game_id))
+
     if request.method == "POST":
         if str(request.form.get("start_game")) == "start_game":
-            db.session.delete(current_game)
-            db.session.commit()
-            new_game = Game(code=current_game.code, game_name=current_game.game_name, host=current_game.host, is_started="True")
-            db.session.add(new_game)
-            db.session.commit()
-            return redirect(url_for('rooms.map', game_id=game_id))
+            all_ready = True
+            for empire in db.session.query(Empires).filter_by(game=game_id):
+                if empire.user == current_user.id:
+                    current_empire = empire
+                if empire.color == None:
+                    all_ready = False
+                if empire.gov == None:
+                    all_ready == False
+                if empire.name == None:
+                    all_ready = False
+                
+            if all_ready:
+                db.session.delete(current_game)
+                db.session.commit()
+                new_game = Game(code=current_game.code, game_name=current_game.game_name, host=current_game.host, is_started="True")
+                db.session.add(new_game)
+                db.session.commit()
+                init_territories_default(current_game.id)
+                return redirect(url_for('rooms.map', game_id=game_id))
+            else:
+                flash('A user has not finished setting up their empire yet.', category='error')
+                return redirect(url_for('rooms.room', game_id=game_id))
         
         if str(request.form.get("update_empire")) == "update_empire":
             empire = request.form.get('empire')
@@ -49,6 +67,7 @@ def room(game_id):
                     db.session.add(new_empire)
                     db.session.commit()
                 return redirect(url_for('rooms.room', game_id=game_id))
+
         #this is where all of the colors that can be used for the 
     colors = [['#FF0000', 'Red', 'red'],
              ['#FF4400', 'Neon Orange', 'neon-orange'], 
@@ -135,12 +154,32 @@ def map(game_id):
              ['#8000FF', 'Purple', 'purple'],
              ['#FF00FF', 'Pink', 'pink'],
              ['#FF0080', 'Salmon', 'salmon']]
+    governments = [['Thassalocracy', 'thassalocracy'],
+                    ['Monarchy', 'monarchy'],
+                    ['Aristocracy', 'aristocracy'],
+                    ['Authoritarian Communism', 'authoritarian-communism'],
+                    ['Anarchy', 'anarchy'],
+                    ['Democracy', 'democracy'],
+                    ['Fascism', 'fascism'],
+                    ['Theocracy', 'theocracy'],
+                    ['Corporate Republic', 'corporate-republic'],
+                    ['Military Dictatorship', 'military-dictatorship'],
+                    ['Fuedalist Kingdom', 'fuedalist-kingdom'],
+                    ['Kleptocracy', 'kleptocracy'],
+                    ['Chiefdom', 'chiefdom'],
+                    ['Anocracy', 'anocracy'],
+                    ]
     players = []
     players_output = []
+    #it was just easier to use a dictionary specifically for this one
     empires = {}
     empire_colors = []
     avail_colors = []
     id = game_id
+    current_gov = None
+    current_color = None
+    current_tag = None
+    current_empire = "None"
     games = db.session.query(Game).filter_by(id = game_id).first()
     if current_user.id == games.host:
         is_host = True
@@ -155,17 +194,26 @@ def map(game_id):
         empires[f"{empire.user}"]=empire.name
         if empire.user == current_user.id:
             current_empire = empire
-        else:
-            current_empire = None
-        if empire.color != None:
+            current_gov = current_empire.gov
+            current_color = current_empire.color
+        if empire.color != "None":
             fixed_empire_color = str(empire.color).lower().replace(' ', '-')
             empire_colors.append(fixed_empire_color)
         else:
-            print('white')
             empire_colors.append('white')
-    empire_key = [empires]
     for color in colors:
-        if color not in empire_colors:
+        if color[2] == current_color:
+            current_tag = color[0]
+        if color[2] not in empire_colors:
             avail_colors.append(color)
+    avail_colors.append([current_tag, str(current_color).title().replace('-', ' '), current_color])
+    territory_list = []
+    for territory in db.session.query(Territories):
+        territory_list.append(territory)
+    return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
 
-    return render_template("map.html", user=current_user, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire)
+
+def init_territories_default(game_id, DEFAULT_OWNER=0):
+    alaska = Territories(name="Alaska", owner=DEFAULT_OWNER, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest")
+    db.session.add(alaska)
+    db.session.commit()

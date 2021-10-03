@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, url_for, redirect
 from flask_login import login_required, current_user
-from .models import Game, GamesJoined, User
+from .models import Empires, Game, GamesJoined, User
 import random
 import string
 from . import db
@@ -47,8 +47,12 @@ def join_game():
                 counter += 1
             if counter >= 13:
                 flash('Game is full.', category='error')
+            elif check.is_started:
+                flash('Game has already started.', category='error')
             else:
                 db.session.add(GamesJoined(user=current_user.id, game=check.id))
+                db.session.commit()
+                db.session.add(Empires(user=current_user.id, game=check.id))
                 db.session.commit()
                 flash('Game Joined!', category='success')
                 #use url_for() instead of writing the direct url because if the other urls
@@ -81,6 +85,8 @@ def create_game():
             db.session.commit()
             game = Game.query.filter_by(code=code).first()
             db.session.add(GamesJoined(user=current_user.id, game=game.id))
+            db.session.commit()
+            db.session.add(Empires(user=current_user.id, game=game.id))
             db.session.commit()
             flash('Game Created!', category='success')
             return redirect(url_for('views.home'))
