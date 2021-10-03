@@ -49,13 +49,13 @@
     </div>
     <br/>
     <h4>Current Government: {{current_gov}}</h4>
-    <button type="submit">Set</button>
+    <button class="button-main" type="submit">Set</button>
 </form>
 
 {% if is_host %}
     <form method="POST">
         <input type="hidden" id="startgame" name="start_game" value="start_game">
-        <button type="sumbit" id="start_game" value="start_game">Start Game</button>
+        <button class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
     </form>
 {% endif %}
 {% endblock %}
