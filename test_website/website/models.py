@@ -78,6 +78,13 @@ class Friends(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user1 = db.Column(db.Integer, db.ForeignKey('user.id'))
     user2 = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
+class Diplo_Reqs(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.Integer, db.ForeignKey('empires.id'))
+    receiver = db.Column(db.Integer, db.ForeignKey('empires.id'))
+    type = db.Column(db.String(10))
     
 
 class User(db.Model, UserMixin):
