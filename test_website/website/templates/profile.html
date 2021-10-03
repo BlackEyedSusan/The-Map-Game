@@ -13,13 +13,13 @@
     {% if not is_friends %}
         <form method="POST">
             <input type="hidden" name="Add Friend" value="Add Friend">
-            <button id = "Add Friend" type="submit" value="Add Friend">Add Friend</button>
+            <button class="button-main" id = "Add Friend" type="submit" value="Add Friend">Add Friend</button>
         </form>
     {% endif %}
     {% if is_friends %}
         <form method="POST">
             <input type="hidden" name="Remove Friend" value="Remove Friend">
-            <button id = "Remove Friend" type="submit" value="Remove Friend">Remove Friend</button>
+            <button class="button-main" id = "Remove Friend" type="submit" value="Remove Friend">Remove Friend</button>
         </form>
     {% endif %}
 {% endif %}

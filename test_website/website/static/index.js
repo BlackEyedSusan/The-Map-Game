@@ -1,1 +1,1 @@
-document.getElementById("user_link").style.color = "lightgray";
+//dont bully me github

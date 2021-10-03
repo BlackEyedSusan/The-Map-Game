@@ -2,6 +2,42 @@
     color: lightslategray
 }
 
+body {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.nav-item {
+    float: left;
+}
+ 
+.nav-user {
+    float:right;
+}
+
+.nav-link {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 18px 16px;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    background-color: #555555;
+}
+
 .box {
     float: left;
     height: 33px;
@@ -10,6 +46,62 @@
     border: 1px solid black;
     border-radius: 5px;
     clear: both;
+}
+
+.button-main {
+    background-color: #285930;
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    transition-duration: 0.4s
+}
+
+.button-main:hover {
+    background-color: #239135;
+}
+
+.alert {
+    padding: 12px;
+    color: white;
+    margin-bottom: 15px;
+    position: relative;
+    top: 46px;
+}
+
+.alert-warning {
+    background-color: #ff7070;
+}
+
+.alert-neutral {
+    background-color: #40b9ff;
+}
+
+.alert-success {
+    background-color: #419941;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+html {
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .white {

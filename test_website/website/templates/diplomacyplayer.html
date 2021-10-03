@@ -9,24 +9,24 @@
         <h4>You are at war.</h4>
         <form method="POST">
             <input type="hidden" id="make_peace" name="make_peace" value="make_peace">
-            <button type="submit">Make Peace</button>
+            <button class="button-main" type="submit">Make Peace</button>
         </form>
 
     {% elif allied %}
         <h4>You are allied.</h4>
         <form method="POST">
             <input type="hidden" id="betray" name="betray" value="betray">
-            <button type="submit">Betray</button>
+            <button class="button-main" type="submit">Betray</button>
         </form>
 
     {% else %}
         <form method="POST">
             <input type="hidden" id="declare_war" name="declare_war" value="declare_war">
-            <button type="submit">Declare War</button>
+            <button class="button-main" type="submit">Declare War</button>
         </form>
         <form method="POST">
             <input type="hidden" id="ally" name="ally" value="ally">
-            <button type="submit">Send Alliance Request</button>
+            <button class="button-main" type="submit">Send Alliance Request</button>
         </form>
     {% endif %}
 
