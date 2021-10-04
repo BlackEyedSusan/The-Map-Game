@@ -56,9 +56,12 @@ def friends():
     friends_list = []
     for friend in db.session.query(Friends).filter_by(user1=current_user.id):
         friends_list.append(friend.user2)
+        print('worked 1')
     for friend in db.session.query(Friends).filter_by(user2=current_user.id):
         friends_list.append(friend.user1)
+        print('worked 2')
     for friend in friends_list:
-        result = db.session.query(User).filter_by(id=friend.id).first()
-        result_list.append(result)
+        print('worked 3')
+        result = db.session.query(User).filter_by(id=friend).first()
+        result_list.append([result, url_for('profiles.profile', user_id=result.id)])
     return render_template('friends.html', user=current_user, friends=result_list)
