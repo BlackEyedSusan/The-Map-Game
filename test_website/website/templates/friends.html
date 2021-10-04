@@ -3,7 +3,7 @@
 {% block content %}
     <h2>Friends List:</h2>
     {% for friend in friends %}
-        <h4>{{friend.username}}</h4>
+        <h4><a href={{friend[1]}}>{{friend[0].username}}</a></h4>
     {% else %}
         <h4>You have no friends.</h4>
     {% endfor %}
