@@ -50,29 +50,6 @@ def room(game_id):
         return redirect(url_for('rooms.map', game_id=game_id))
 
     if request.method == "POST":
-        if str(request.form.get("start_game")) == "start_game":
-            all_ready = True
-            for empire in db.session.query(Empires).filter_by(game=game_id):
-                if empire.user == current_user.id:
-                    current_empire = empire
-                if empire.color == None:
-                    all_ready = False
-                if empire.gov == None:
-                    all_ready == False
-                if empire.name == None:
-                    all_ready = False
-                
-            if all_ready:
-                db.session.delete(current_game)
-                db.session.commit()
-                new_game = Game(code=current_game.code, game_name=current_game.game_name, host=current_game.host, is_started="True")
-                db.session.add(new_game)
-                db.session.commit()
-                init_territories_default(current_game.id)
-                return redirect(url_for('rooms.map', game_id=game_id))
-            else:
-                flash('A user has not finished setting up their empire yet.', category='error')
-                return redirect(url_for('rooms.room', game_id=game_id))
         
         if str(request.form.get("update_empire")) == "update_empire":
             empire = request.form.get('empire')
@@ -100,6 +77,29 @@ def room(game_id):
                 else:
                     db.session.add(new_empire)
                     db.session.commit()
+                return redirect(url_for('rooms.room', game_id=game_id))
+        elif str(request.form.get("start_game")) == "start_game":
+            print('worked')
+            all_ready = True
+            for empire in db.session.query(Empires).filter_by(game=game_id):
+                if empire.user == current_user.id:
+                    current_empire = empire
+                if empire.color == None:
+                    all_ready = False
+                if empire.gov == None:
+                    all_ready == False
+                if empire.name == None:
+                    all_ready = False
+            if all_ready:
+                db.session.delete(current_game)
+                db.session.commit()
+                new_game = Game(code=current_game.code, game_name=current_game.game_name, host=current_game.host, is_started="True")
+                db.session.add(new_game)
+                db.session.commit()
+                init_territories_default(current_game.id)
+                return redirect(url_for('rooms.map', game_id=game_id))
+            else:
+                flash('A user has not finished setting up their empire yet.', category='error')
                 return redirect(url_for('rooms.room', game_id=game_id))
 
         #this is where all of the colors that can be used for the 

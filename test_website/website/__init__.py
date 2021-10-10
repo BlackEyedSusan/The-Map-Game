@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from os import path
+from flask.app import _make_timedelta
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -20,10 +21,14 @@ importing()
 def create_app():
 
     app = Flask(__name__)
+    UPLOAD_FOLDER = 'static/pfp/'
     
+    app.config['UPLOAD FOLDER'] = UPLOAD_FOLDER
     app.config['SECRET_KEY'] = 'ga8925asdgDgls10352;aDg'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['UPLOADS_DEFAULT_DEST'] = '/static/pfp/'
+    app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
     db.init_app(app)
     ma = Marshmallow(app)
 

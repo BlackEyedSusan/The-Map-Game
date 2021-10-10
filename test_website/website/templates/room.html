@@ -2,8 +2,11 @@
 
 {% block content %}
 <head>
+    <link rel="stylesheet" type="text/css" href="/static/css/room.css" />
     <script type="text/javascript" src="/static/rooms.js"></script>
 </head>
+<body class="map">
+<div class="lobby">
 <br/>
 <h1 align="center"> {{ game.game_name }} </h1>
 <br/>
@@ -14,7 +17,7 @@
     {% for key, value in empire_key.items() %}
         {% if key|string() == player[0].id|string() %}
             {% set empire_name = value %} 
-            <div><div class="box {{used_colors[loop.index0]}}"></div><h3>{{empire_name}} <a href="{{player[1]}}">({{ player[0].username }})</a></h3></div>    
+            <div><div class="box {{used_colors[loop.index0]}}"></div><h3 class = "empire">{{empire_name}} <a class = "empire link" href="{{player[1]}}">({{ player[0].username }})</a></h3></div>    
         {% endif %}
     {% endfor %}
 {% endfor %}
@@ -23,19 +26,19 @@
 <form method="POST">
     <div>
         <label for="empire">Empire Name: </label>
-        {% if current_empire == "None" %}
+        {% if current_empire == none %}
             <input type="text" id="empire" name="empire" placeholder="Enter empire name"/>
         {% else %}
-            <input type="text" value = "{{current_empire.name}}" id="empire" name="empire" placeholder="Enter empire name"/>
+            <input class="form txt-white" type="text" value = "{{current_empire.name}}" id="empire" name="empire" placeholder="Enter empire name"/>
         {% endif %}
         <label for="color_input">Color: </label>
-        <select id="color_input" name="color_input" aria-placeholder="Pick a color">
+        <select class="selection" id="color_input" name="color_input" aria-placeholder="Pick a color">
             {% for color in avail_colors %}
                 <option selected="{{current_color}}" value = "{{color[2]}}">{{color[1]}}</option>
             {% endfor %}
         </select>
         <label for="gov">Government: </label>
-        <select id="gov" name="gov" aria-placeholder="Pick a government">
+        <select class="selection" id="gov" name="gov" aria-placeholder="Pick a government">
             {% for gov in govs %}
                 {% if gov[0] == current_gov %}
                     <option selected value="{{gov[0]}}">{{gov[0]}}</option>
@@ -43,19 +46,20 @@
                     <option value="{{gov[0]}}">{{gov[0]}}</option>
                 {% endif %}
             {% endfor %}
-
         </select>
         <input type="hidden" id="update_empire" name="update_empire" value="update_empire">
+        </form>
     </div>
     <br/>
     <h4>Current Government: {{current_gov}}</h4>
-    <button class="button-main" type="submit">Set</button>
-</form>
+    <button style="display: inline-block;" class="button-main" type="submit">Set</button>
+    {% if is_host %}
+        <form style="display: inline-block;" method="POST">
+            <input type="hidden" id="start_game" name="start_game" value="start_game">
+            <button style="display: inline-block;" class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
+        </form>
+    {% endif %}
 
-{% if is_host %}
-    <form method="POST">
-        <input type="hidden" id="startgame" name="start_game" value="start_game">
-        <button class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
-    </form>
-{% endif %}
+</div>
+</body>
 {% endblock %}
