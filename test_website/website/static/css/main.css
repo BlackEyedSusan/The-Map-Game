@@ -7,6 +7,27 @@ body {
     margin-right: 0;
 }
 
+.auth-box {
+    line-height: 100%;
+    margin:auto;
+    vertical-align: middle;
+    margin-top: 20px;
+    width:fit-content;
+    padding:15px;
+    color:rgb(27, 27, 27);
+    /*border:#010101;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;*/
+    text-align: center;
+}
+
+.map {
+    background-image: url('/static/assets/world_map.png');
+    background-repeat: no-repeat;
+    background-color: #4a4a4a
+}
+
 .navbar {
     list-style-type: none;
     margin: 0;
@@ -39,17 +60,22 @@ body {
 }
 
 .box {
-    float: left;
-    height: 33px;
-    width: 33px;
+    display: inline-block;
+    height: 25px;
+    width: 25px;
     margin-bottom: 0px;
+    margin-right: 5px;
     border: 1px solid black;
     border-radius: 5px;
     clear: both;
 }
 
+.empire {
+    display: inline-block;
+}
+
 .button-main {
-    background-color: #285930;
+    background-color: rgb(0, 145, 130);
     border: none;
     color: white;
     padding: 10px 32px;
@@ -58,11 +84,13 @@ body {
     display: inline-block;
     font-size: 16px;
     border-radius: 5px;
-    transition-duration: 0.4s
+    transition-duration: 0.4s;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .button-main:hover {
-    background-color: #239135;
+    background-color: rgb(0, 206, 185);
+    box-shadow: 0px 15px 20px rgba(10, 0, 97, 0.4);
 }
 
 .alert {
@@ -102,6 +130,63 @@ body {
 
 html {
     font-family: Arial, Helvetica, sans-serif;
+}
+
+.lobby {
+    line-height: 100%;
+    color:#d4d4d4;
+    margin:auto;
+    vertical-align: middle;
+    margin-top: 105px;
+    width:fit-content;
+    padding:15px;
+    border:#010101;
+    border-style: solid;
+    border-width: 5px;
+    background-color: rgba(27, 27, 27, 0.9);
+    text-align: center;
+}
+
+.link {
+    color:rgb(0, 145, 130);
+    text-decoration: none;
+}
+
+.link:hover {
+    color:rgb(0, 206, 185);
+}
+
+.form {
+    padding: 5px;
+    background-color: transparent;
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: #333333;
+}
+
+.txt-white {
+    color: white;
+}
+
+.form:focus { 
+    outline: none !important;
+    border-color: #EEEEEE;
+    box-shadow: 0 0 15px #EEEEEE;
+}
+
+.selection {
+    padding: 5px;
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: #333333;
+    background-color: transparent;
+    color: white;
+}
+
+.selection:focus { 
+    outline: none !important;
+    border-color: #EEEEEE;
+    box-shadow: 0 0 15px #EEEEEE;
 }
 
 .white {

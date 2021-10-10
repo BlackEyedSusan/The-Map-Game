@@ -2,13 +2,13 @@
 
 {% block content %}
 <br/>
+<div class="auth-box">
 <form method="POST">
-    <h3 align="left">Create Game</h3>
-    <div class="form-group">
-        <label for="">Game Name</label>
-        <input type="text" class="form-control" id="game_name" name="game_name" placeholder="Enter name of the game lobby"/>
-    </div>
+    <h1 style="font-size:60px;">Create Game</h1>
+    <label style="font-size:x-large;" for="game_name">Game Name</label>
+    <input type="text" class="form" id="game_name" name="game_name" placeholder="Enter name of the game lobby"/>
     <br />
-    <button type="submit" class="button-main">Create Game</button>
+    <button type="submit" style="margin-top: 15px;" class="button-main">Create Game</button>
 </form>
+</div>
 {% endblock %}

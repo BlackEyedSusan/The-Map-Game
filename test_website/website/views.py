@@ -62,6 +62,10 @@ def join_game():
             flash('Incorrect Code.', category='error')
     return render_template("join_game.html", user=current_user)
 
+@views.route('/help')
+def rick_roll():
+    return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
 @views.route('/create-game', methods=["GET", "POST"])
 @login_required
 def create_game():

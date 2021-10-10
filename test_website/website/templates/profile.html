@@ -1,9 +1,15 @@
-{% extends "base.html" %} {% block title %}{{user.username}}'s Profile{% endblock %}
+{% extends "base.html" %} {% block title %}{{player.username}}'s Profile{% endblock %}
 
 {% block content %}
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/css/profile.css" />
+</head>
 <br/>
 <h1 id="heading">{{player.username}}'s Profile</h1>
 <br/>
+<div class="pfp">
+    <img src="{{player.pfp}}">
+</div>
 <h3>Stats:</h3>
 <ul>
     <li><h5>Games Joined: {{ games_joined }}</h5></li>
@@ -22,6 +28,13 @@
             <button class="button-main" id = "Remove Friend" type="submit" value="Remove Friend">Remove Friend</button>
         </form>
     {% endif %}
+{% else %}
+    <form enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="upload_pfp" value="upload_pfp">
+        <label class="button-main" for="pfp">Upload Image</label>
+        <input type="file" id="pfp" name="pfp" accept="image/*" hidden/>
+        <input class="button-main" type="submit">
+    </form>
 {% endif %}
 <script type="text/javascript" src="/static/profile.js"></script>
 {% endblock %}

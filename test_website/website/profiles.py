@@ -1,6 +1,9 @@
-from flask import Blueprint, render_template, request, flash, url_for, redirect, jsonify
+from flask import Blueprint, abort, render_template, request, flash, url_for, redirect, jsonify
 from flask_login import login_required, current_user
 from .models import Game, GamesJoined, User, Empires, Friends
+import os
+from werkzeug.utils import secure_filename
+#import PIL
 from . import db
 
 profiles = Blueprint('profiles', __name__)
@@ -33,6 +36,38 @@ def profile(user_id):
             db.session.commit()
             flash('User removed from friends.', category='neutral')
             redirect(url_for('profiles.profile', user_id=user_id))
+        elif request.form.get("upload_pfp") == "upload_pfp":
+            #photos = UploadSet('photos', IMAGES)
+            #filename = photos.save(request.files['photo'])
+            #rec = Photo(filename=filename, user=g.user.id)
+            #rec.store()
+            #flash("Photo saved.")
+            #uploaded_file = request.files['file']
+            #filename = secure_filename(uploaded_file.filename)
+            #if filename != '':
+                #file_ext = os.path.splitext(filename)[1]
+                #if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+                    #abort(400)
+                #uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            if 'pfp' not in request.files:
+                flash('No file part', 'error')
+                return redirect(request.url)
+            file = request.files['pfp']
+            # if user does not select file, browser also
+            # submit a empty part without filename
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                name = 'a' + str(user_id) + '.png'
+                file.save(os.path.join('/static/pfp/', name))
+            user_changed = db.session.query(User).filter_by(id=current_user.id).first()
+            user_changed.pfp = f'/static/pfp/{filename}'
+            db.session.commit()
+            flash('Profile picture changed!', category='success')
+            redirect(url_for('profiles.profile', user_id=user_id))
+
             
     user = User.query.filter_by(id=user_id).first()
     counter=0
@@ -65,3 +100,8 @@ def friends():
         result = db.session.query(User).filter_by(id=friend).first()
         result_list.append([result, url_for('profiles.profile', user_id=result.id)])
     return render_template('friends.html', user=current_user, friends=result_list)
+
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
