@@ -25,7 +25,7 @@ colors = [['#FF0000', 'Red', 'red'],
             ['#FF00FF', 'Pink', 'pink'],
             ['#FF0080', 'Salmon', 'salmon']]
 
-governments = [['Thassalocracy', 'thassalocracy'],
+governments = [['Thalassocracy', 'thalassocracy'],
                 ['Monarchy', 'monarchy'],
                 ['Aristocracy', 'aristocracy'],
                 ['Authoritarian Communism', 'authoritarian-communism'],

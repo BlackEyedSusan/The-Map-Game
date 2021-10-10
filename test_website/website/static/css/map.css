@@ -1,5 +1,5 @@
 html, body {
-    width:  100%;
+    width: 100%;
     height: 100%;
     margin: 0;
     overflow: hidden;
@@ -7,15 +7,26 @@ html, body {
 
 #container {
     position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     margin: 0px;
 }
-#container canvas, #overlay {
+
+#container canvas, .overlay {
     position: absolute;
     margin: 0px;
 }
+
+.overlay {
+    border: 1px solid white;
+}
+
 canvas {
     margin: 0px;
-    border: 1px solid black;
+    border: 1px solid white;
+    z-index: 2;
+    pointer-events: none;
 }
 
 #overlay {

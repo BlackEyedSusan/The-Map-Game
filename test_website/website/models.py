@@ -28,6 +28,7 @@ class Empires(db.Model):
     name = db.Column(db.String(200))
     color = db.Column(db.String(7))
     gov = db.Column(db.String(50))
+    #flag = db.Column(db.String(50))
     #You can use foreign keys to relate tables together
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
@@ -45,6 +46,7 @@ class Territories(db.Model):
     uranium = db.Column(db.String(5))
     gold = db.Column(db.String(5))
     biome = db.Column(db.String(20))
+    region = db.Column(db.String(25))
 
 
 class Military(db.Model):
@@ -85,6 +87,22 @@ class Diplo_Reqs(db.Model):
     sender = db.Column(db.Integer, db.ForeignKey('empires.id'))
     receiver = db.Column(db.Integer, db.ForeignKey('empires.id'))
     type = db.Column(db.String(10))
+
+class Stats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    wins = db.Column(db.Integer)
+    total_ally = db.Column(db.Integer)
+    total_betray = db.Column(db.Integer)
+    total_war = db.Column(db.Integer)
+    wars_won = db.Column(db.Integer)
+    games_finished = db.Column(db.Integer)
+    battles_won = db.Column(db.Integer)
+    battles_done = db.Column(db.Integer)
+    #fav_color = db.Column(db.String(30))
+    #fav_gov = db.Column(db.String(50))
+    #fav_start_region = db.Column(db.String(50))
+
     
 
 class User(db.Model, UserMixin):

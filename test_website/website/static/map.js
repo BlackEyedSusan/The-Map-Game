@@ -16,10 +16,7 @@ class Territory {
     }
 
     draw() {
-        this.drawing = new Path2D()
-        this.drawing.arc(this.x, this.y, 20, 0, Math.PI*2, false)
-        this.drawing.fillStyle = this.color
-        this.drawing.fill()
+        this.drawing = fillRect(20, 20, 20, 20)
     }
 }
 
@@ -41,20 +38,9 @@ const centerX = canvas.width/2
 const centerY = canvas.height/2
 let londinium = new Territory("Londinium", "England", "blue", 100, 100)
 let normandy = new Territory("Normandy", "France", "green", 300, 100)
+londinium.draw();
 
 function game() {
-    function changeColor(object, color) {
-        object.color = color
-    }
-    londinium.draw()
-    normandy.draw()
-}
-
-function mouseMove(event) {
-    if (event.isPointInPath(londinium, event.offsetX, event.offsetY)) {
-      londinium.color = 'green';
-      console.log("Hovered over dot!")
-    }  
 }
 
 function keyPushed(evt) {

@@ -23,8 +23,8 @@
 {% endfor %}
 </div>
 <hr>
-<form method="POST">
-    <div>
+<div>
+<form style="display: inline;" method="POST">
         <label for="empire">Empire Name: </label>
         {% if current_empire == none %}
             <input type="text" id="empire" name="empire" placeholder="Enter empire name"/>
@@ -48,18 +48,18 @@
             {% endfor %}
         </select>
         <input type="hidden" id="update_empire" name="update_empire" value="update_empire">
-        </form>
-    </div>
-    <br/>
-    <h4>Current Government: {{current_gov}}</h4>
-    <button style="display: inline-block;" class="button-main" type="submit">Set</button>
+        <br/>
+        <h4>Current Government: {{current_gov}}</h4>
+        <button class="button-main" type="submit">Set</button>
+        
+    </form>
     {% if is_host %}
-        <form style="display: inline-block;" method="POST">
+        <form style="display:inline" method="POST">
             <input type="hidden" id="start_game" name="start_game" value="start_game">
-            <button style="display: inline-block;" class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
+            <button class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
         </form>
     {% endif %}
-
+</div>
 </div>
 </body>
 {% endblock %}

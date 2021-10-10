@@ -7,8 +7,8 @@
 <br/>
 <h1 id="heading">{{player.username}}'s Profile</h1>
 <br/>
-<div class="pfp">
-    <img src="{{player.pfp}}">
+<div class="pfp" style="background-image: url({{player.pfp}});">
+    <!--<img src="{{player.pfp}}">-->
 </div>
 <h3>Stats:</h3>
 <ul>
@@ -31,8 +31,9 @@
 {% else %}
     <form enctype="multipart/form-data" method="POST">
         <input type="hidden" name="upload_pfp" value="upload_pfp">
-        <label class="button-main" for="pfp">Upload Image</label>
         <input type="file" id="pfp" name="pfp" accept="image/*" hidden/>
+        <label class="button-main" for="pfp">Upload Image</label>
+        <span id="file-chosen">No file chosen</span>
         <input class="button-main" type="submit">
     </form>
 {% endif %}
