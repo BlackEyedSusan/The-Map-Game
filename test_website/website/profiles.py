@@ -2,8 +2,8 @@ from flask import Blueprint, abort, render_template, request, flash, url_for, re
 from flask_login import login_required, current_user
 from .models import Game, GamesJoined, User, Empires, Friends
 import os
+from PIL import Image
 from werkzeug.utils import secure_filename
-#import PIL
 from . import db
 
 profiles = Blueprint('profiles', __name__)
@@ -25,7 +25,7 @@ def profile(user_id):
                 db.session.add(new_friend)
                 db.session.commit()
                 flash('User addded to friends!', category='success')
-                redirect(url_for('profiles.profile', user_id=user_id))
+                return redirect(url_for('profiles.profile', user_id=user_id))
         elif request.form.get("Remove Friend") == "Remove Friend":
             is_friends1 = Friends.query.filter_by(user1=user_id, user2=current_user.id).first()
             is_friends2 = Friends.query.filter_by(user2=user_id, user1=current_user.id).first()
@@ -35,38 +35,23 @@ def profile(user_id):
                 db.session.delete(is_friends2)
             db.session.commit()
             flash('User removed from friends.', category='neutral')
-            redirect(url_for('profiles.profile', user_id=user_id))
+            return redirect(url_for('profiles.profile', user_id=user_id))
         elif request.form.get("upload_pfp") == "upload_pfp":
-            #photos = UploadSet('photos', IMAGES)
-            #filename = photos.save(request.files['photo'])
-            #rec = Photo(filename=filename, user=g.user.id)
-            #rec.store()
-            #flash("Photo saved.")
-            #uploaded_file = request.files['file']
-            #filename = secure_filename(uploaded_file.filename)
-            #if filename != '':
-                #file_ext = os.path.splitext(filename)[1]
-                #if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-                    #abort(400)
-                #uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-            if 'pfp' not in request.files:
-                flash('No file part', 'error')
-                return redirect(request.url)
-            file = request.files['pfp']
-            # if user does not select file, browser also
-            # submit a empty part without filename
-            if file.filename == '':
-                flash('No selected file')
-                return redirect(request.url)
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                name = 'a' + str(user_id) + '.png'
-                file.save(os.path.join('/static/pfp/', name))
-            user_changed = db.session.query(User).filter_by(id=current_user.id).first()
-            user_changed.pfp = f'/static/pfp/{filename}'
+            print("got this far")
+            uploaded_file = request.files['pfp']
+            print(uploaded_file.filename)
+            filename = str(current_user.id) + ".png"
+            print(filename)
+            
+            uploaded_file.save(os.path.join('website/static/pfp/', filename))
+            image = Image.open(f'website/static/pfp/{filename}')
+            image = image.resize((256,256))
+            image.save(f'website/static/pfp/{filename}')
+            cur_user = db.session.query(User).filter_by(id=current_user.id).first()
+            cur_user.pfp = f'/static/pfp/{filename}'
             db.session.commit()
-            flash('Profile picture changed!', category='success')
-            redirect(url_for('profiles.profile', user_id=user_id))
+
+            return redirect(url_for('upload_files', user_id=user_id))
 
             
     user = User.query.filter_by(id=user_id).first()
@@ -76,7 +61,7 @@ def profile(user_id):
     is_friends2 = Friends.query.filter_by(user2=user_id, user1=current_user.id).first()
     if is_friends1 != None or is_friends2 != None:
         is_friends = True
-    for games in GamesJoined.query.filter_by(id=user_id):
+    for games in db.session.query(GamesJoined).filter_by(user=user_id):
         counter += 1
     if user == current_user:
         is_current_user = True

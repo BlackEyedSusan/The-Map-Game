@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, url_for, redirect
 from flask_login import login_required, current_user
-from .models import Empires, Game, GamesJoined, User
+from .models import Empires, Friends, Game, GamesJoined, User
 import random
 import string
 from . import db
@@ -17,15 +17,25 @@ views = Blueprint('views', __name__)
 @login_required
 def home():
     game = []
+    friends = []
     for games in db.session.query(GamesJoined).filter_by(user = current_user.id):
         id = games.game
         for filtered in db.session.query(Game).filter_by(id = id):
             links = (filtered, url_for('rooms.room', game_id=id))
             game.append(links)
-        
+    friends1 = db.session.query(Friends).filter_by(user1=current_user.id)
+    friends2 = db.session.query(Friends).filter_by(user2=current_user.id)
+    for friend in friends1:
+        print('worked')
+        add = db.session.query(User).filter_by(id=friend.user2).first()
+        friends.append(add)
+    for friend in friends2:
+        add = db.session.query(User).filter_by(id=friend.user1).first()
+        friends.append(add)
+
     #the render template function can take in as many keyword arguments as variables to be used 
     #in the jinja of the html file
-    return render_template("home.html", user=current_user, games_joined = game)
+    return render_template("home.html", friends=friends, user=current_user, games_joined = game)
 
 @views.route('/deceit')
 @login_required

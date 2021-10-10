@@ -60,7 +60,7 @@ def sign_up():
             flash('Must have a password over 7 characters.', category='error')
         else:
             #for example here, you generate a password hash so you cannot reverse engineer the password, which adds security
-            new_user = User(email=email, username=username, password=generate_password_hash(password1, method='sha256'), pfp="/static/pfp/blank.png")
+            new_user = User(email=email, username=username, password=generate_password_hash(password1, method='sha256'), pfp="/static/pfp/blank.png", admin="nope")
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True) #I haven't made remember user togglable yet,
