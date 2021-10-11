@@ -24,7 +24,6 @@ def validate_image(stream):
 
 @app.route('/user/<int:user_id>', methods=['POST'])
 def upload_files(user_id):
-    print('redirect worked')
     uploaded_file = request.files['pfp']
     filename = secure_filename(uploaded_file.filename)
     if filename != '':

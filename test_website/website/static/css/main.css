@@ -8,8 +8,8 @@
 }
 
 @font-face {
-    font-family: poor_handwriting;
-    src: url('poor-handwriting.ttf');
+    font-family: MapGame;
+    src: url('mapgame.ttf');
 }
 
 .font-basic {
@@ -30,7 +30,7 @@
 }
 
 body {
-    font-family: poor_handwriting;
+    font-family: MapGame;
     margin: 0px;
     background-color: #333333;
     color: white;

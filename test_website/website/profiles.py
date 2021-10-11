@@ -37,12 +37,11 @@ def profile(user_id):
             flash('User removed from friends.', category='neutral')
             return redirect(url_for('profiles.profile', user_id=user_id))
         elif request.form.get("upload_pfp") == "upload_pfp":
-            print("got this far")
             uploaded_file = request.files['pfp']
-            print(uploaded_file.filename)
+            if uploaded_file.filename == '':
+                flash("You have to upload a file to change your profile picture.", category='error')
+                return redirect(url_for('profiles.profile', user_id=user_id))
             filename = str(current_user.id) + ".png"
-            print(filename)
-            
             uploaded_file.save(os.path.join('website/static/pfp/', filename))
             image = Image.open(f'website/static/pfp/{filename}')
             image = image.resize((256,256))

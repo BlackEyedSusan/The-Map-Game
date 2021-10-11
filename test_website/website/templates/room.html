@@ -3,14 +3,12 @@
 {% block content %}
 <head>
     <link rel="stylesheet" type="text/css" href="/static/css/room.css" />
-    <script type="text/javascript" src="/static/rooms.js"></script>
 </head>
 <body class="map">
 <div class="lobby">
 <br/>
 <h1 align="center"> {{ game.game_name }} </h1>
 <br/>
-<h2>Players:</h2>
 <div>
 {% for player in players %}
     {% set empire_name = "No Empire Name" %}
@@ -24,7 +22,7 @@
 </div>
 <hr>
 <div>
-<form style="display: inline;" method="POST">
+<form enctype="multipart/form-data" style="display: inline;" method="POST">
         <label for="empire">Empire Name: </label>
         {% if current_empire == none %}
             <input type="text" id="empire" name="empire" placeholder="Enter empire name"/>
@@ -34,24 +32,38 @@
         <label for="color_input">Color: </label>
         <select class="selection" id="color_input" name="color_input" aria-placeholder="Pick a color">
             {% for color in avail_colors %}
-                <option selected="{{current_color}}" value = "{{color[2]}}">{{color[1]}}</option>
+                <option class="opt" selected="{{current_color}}" value = "{{color[2]}}">{{color[1]}}</option>
             {% endfor %}
         </select>
         <label for="gov">Government: </label>
         <select class="selection" id="gov" name="gov" aria-placeholder="Pick a government">
             {% for gov in govs %}
                 {% if gov[0] == current_gov %}
-                    <option selected value="{{gov[0]}}">{{gov[0]}}</option>
+                    <option class="opt" selected value="{{gov[0]}}">{{gov[0]}}</option>
                 {% else %}
-                    <option value="{{gov[0]}}">{{gov[0]}}</option>
+                    <option class="opt" value="{{gov[0]}}">{{gov[0]}}</option>
                 {% endif %}
             {% endfor %}
         </select>
+        <br/>
+        <br/>
+        <select class="selection" id="flag2" name="flag2">
+            {% if current_empire.flag != none %}
+            <option class="opt" selected value="{{current_empire.flag}}">Keep Current Flag</option>
+            {% endif %}
+            {% for flag in avail_flags %}
+            <option class="opt" value="{{flag[1]}}">{{flag[0]}}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="upload_flag" value="upload_flag">
+        <input type="file" id="flag" name="flag" accept="image/*" hidden/>
+        <label class="button-main" for="flag">Upload a flag or choose one.</label>
+        <span id="file-chosen">No file chosen</span>
         <input type="hidden" id="update_empire" name="update_empire" value="update_empire">
         <br/>
+        
         <h4>Current Government: {{current_gov}}</h4>
         <button class="button-main" type="submit">Set</button>
-        
     </form>
     {% if is_host %}
         <form style="display:inline" method="POST">
@@ -59,7 +71,9 @@
             <button class="button-main" type="sumbit" id="start_game" value="start_game">Start Game</button>
         </form>
     {% endif %}
+    <div class="flag-icon" style="background-image: url({{current_empire.flag}}); background-size: 75px 50px;"></div>
 </div>
 </div>
 </body>
+<script type="text/javascript" src="/static/rooms.js"></script>
 {% endblock %}
