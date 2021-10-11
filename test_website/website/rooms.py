@@ -1,11 +1,12 @@
-import sqlite3
 from flask import Blueprint, render_template, request, flash, url_for, redirect, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy.orm.session import sessionmaker
+from werkzeug.local import F
 from .models import Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, Territories, User, Empires, Wars
 from . import db
 from flask_sqlalchemy import event
-
+from PIL import Image
+import os
 Session = sessionmaker()
 
 
@@ -41,6 +42,25 @@ governments = [['Thalassocracy', 'thalassocracy'],
                 ['Anocracy', 'anocracy']
                 ]
 
+country_flags = [['Austria Hungary', '/static/flags/country/austria_hungary.png'],
+                ['Brazil', '/static/flags/country/brazil.png'],
+                ['China', '/static/flags/country/china.png'],
+                ['Dutch East India Company', '/static/flags/country/dutch_east_india_company.png'],
+                ['France', '/static/flags/country/france.png'],
+                ['Germany', '/static/flags/country/germany.png'],
+                ['Great Britain', '/static/flags/country/great_britain.png'],
+                ['India', '/static/flags/country/india.png'],
+                ['Iran', '/static/flags/country/iran.png'],
+                ['Japan', '/static/flags/country/japan.png'],
+                ['Mexico', '/static/flags/country/mexico.png'],
+                ['The Netherlands', '/static/flags/country/netherlands.png'],
+                ['Ottoman Empire', '/static/flags/country/ottoman_empire.png'],
+                ['Poland', '/static/flags/country/poland.png'],
+                ['Saudi Arabia', '/static/flags/country/saudi_arabia.png'],
+                ['Soviet Union', '/static/flags/country/soviet_union.png'],
+                ['United States', '/static/flags/country/united_states.png'],
+                ['Venice', '/static/flags/country/venice.png']]
+
 @rooms.route('<int:game_id>', methods=["GET", "POST"])
 @login_required
 def room(game_id):
@@ -55,10 +75,13 @@ def room(game_id):
             empire = request.form.get('empire')
             color = request.form.get('color_input')
             gov = request.form.get('gov')
+            flag1 = request.files['flag']
+            print(flag1.filename)
+            flag2 = request.form.get('flag2')
             empire_query = Empires.query.filter_by(name=empire).first()
             color_query = Empires.query.filter_by(color=color, game=game_id)
             if empire_query != None and (empire_query.name == empire and empire_query.user != current_user.id and empire_query.game == game_id):
-                    flash('That empire name is in use.', category='error')
+                flash('That empire name is in use.', category='error')
             elif len(empire) < 1:
                 flash('You cannot leave the empire name blank.', category='error')
             elif len(empire) > 200:
@@ -66,7 +89,16 @@ def room(game_id):
             elif color_query == color:
                 flash('That color is in use.', category='error')
             else:
-                new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov)
+                if flag1.filename != '':
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1)
+                    filename = str(current_user.id) + str(game_id) + ".png"
+                    flag1.save(os.path.join('website/static/flags/uploaded/', filename))
+                    image = Image.open(f'website/static/flags/uploaded/{filename}')
+                    image = image.resize((150,100))
+                    image.save(f'website/static/flags/uploaded/{filename}')
+                    new_empire.flag = f'/static/flags/uploaded/{filename}'
+                else:
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2)
                 empire_query = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
                 if empire_query:
                     if empire_query.game == game_id:
@@ -91,10 +123,7 @@ def room(game_id):
                 if empire.name == None:
                     all_ready = False
             if all_ready:
-                db.session.delete(current_game)
-                db.session.commit()
-                new_game = Game(code=current_game.code, game_name=current_game.game_name, host=current_game.host, is_started="True")
-                db.session.add(new_game)
+                current_game.is_started = "True"
                 db.session.commit()
                 init_territories_default(current_game.id)
                 return redirect(url_for('rooms.map', game_id=game_id))
@@ -109,6 +138,7 @@ def room(game_id):
     empires = {}
     empire_colors = []
     avail_colors = []
+    avail_flags = []
     id = game_id
     current_gov = None
     current_color = None
@@ -140,8 +170,12 @@ def room(game_id):
             current_tag = color[0]
         if color[2] not in empire_colors:
             avail_colors.append(color)
+    for banner in country_flags:
+        search = db.session.query(Empires).filter_by(game=game_id, flag=banner[1]).first()
+        if search == None:
+            avail_flags.append(banner)
     avail_colors.append([current_tag, str(current_color).title().replace('-', ' '), current_color])
-    return render_template("room.html", user=current_user, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
+    return render_template("room.html", user=current_user, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, avail_flags=avail_flags, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
 
 @event.listens_for(Session, 'after_commit')
 def receive_after_commit(session):
@@ -320,6 +354,6 @@ def diplomacyplayer(game_id, empire_id):
 
 
 def init_territories_default(game_id, DEFAULT_OWNER=0):
-    alaska = Territories(name="Alaska", owner=DEFAULT_OWNER, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest")
+    alaska = Territories(name="Alaska", owner=DEFAULT_OWNER, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Artic")
     db.session.add(alaska)
     db.session.commit()

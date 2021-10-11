@@ -11,11 +11,15 @@
     {% set counter = 0 %}
     <div id="game_list">
         <h1 style="text-align: center;">Joined Games</h1>
+    <hr>
     {% for game in games_joined %}
         {% set counter = counter+1 %}
         <h2 class="home-heading"><a class="game-link" id="game_headings{{counter}}" href={{game[1]}}>Game: {{ game[0].game_name }}</a></h2> <h4 class="game-code">Code: {{ game[0].code }}</h4> <br/>
     <hr>
     {% endfor %}
+    {% else %}
+        <h1>No games joined currently. Join one <a class="join-here">here</a></h1>
+    {% endif %}
     <br/>
     <br/>
     <br/>
@@ -24,9 +28,7 @@
     <br/>
     </div>
     
-    {% else %}
-        <h1>No games joined currently. Join one <a class="join-here">here</a></h1>
-    {% endif %}
+    
     <script type="text/javascript" src="/static/home.js"></script>
     </div>
     <article class="friends">
