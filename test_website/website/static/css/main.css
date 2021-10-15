@@ -29,8 +29,11 @@
     color:#bbbbbb;
 }
 
-body {
+h1, h2, h3 {
     font-family: MapGame;
+}
+
+body {
     margin: 0px;
     background-color: #333333;
     color: white;
