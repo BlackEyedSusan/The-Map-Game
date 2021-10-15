@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block title %}Diplomacy{% endblock %}
+
+{% block content %} 
+<br/>
+<h2>Empires:</h2>
+{% for empire in empire_key %}
+    <h4><a href='{{empire[1]}}'>{{ empire[0] }}</a></h4>
+{% endfor %}
+<br/>
+<h3>Pending Diplomatic Requests:</h3>
+{% for request in diplomacy_requests %}
+    <h6>{{request[1]}} has sent a {{request[0]}} request. <a href={{request[2]}}>Accept</a> or Decline?</h6>
+{% else %}
+    <h6>No requests to tackle currently.</h6>
+{% endfor %}
+
+<br/>
+<h3>Sent Diplomatic Requests:</h3>
+{% for sent_diplo in sent_diplos %}
+    <h6>{{sent_diplo[1]}} has been sent a {{sent_diplo[0]}} request.</h6> 
+{% else %}
+    <h6>No requests sent to other players currently.</h6>
+{% endfor %}
+
+
+{% endblock %}
