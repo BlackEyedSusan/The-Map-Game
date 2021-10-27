@@ -34,7 +34,6 @@ def upload_files(user_id):
         uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
     return redirect(url_for('profiles.profile', user_id=user_id))
 
-
 socketio = SocketIO(app)
 #handles 404 errors
 @app.errorhandler(exceptions.NotFound)

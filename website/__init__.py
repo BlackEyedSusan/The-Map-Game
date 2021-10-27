@@ -36,11 +36,13 @@ def create_app():
     from .auth import auth
     from .rooms import rooms
     from .profiles import profiles
+    from .docs import docs
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(rooms, url_prefix='/rooms/')
     app.register_blueprint(profiles, url_prefix='/user/')
+    app.register_blueprint(docs, url_prefix='/docs/')
     #these register the different paths, (they are in the different files) and sets the 
     #base path for them
 
