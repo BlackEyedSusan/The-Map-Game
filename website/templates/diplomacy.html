@@ -9,7 +9,7 @@
 <br/>
 <h3>Pending Diplomatic Requests:</h3>
 {% for request in diplomacy_requests %}
-    <h6>{{request[1]}} has sent a {{request[0]}} request. <a href={{request[2]}}>Accept</a> or Decline?</h6>
+    <h6>{{request[1]}} has sent a {{request[0]}} request. <a href={{request[2]}}>Accept</a> or <a href={{request[3]}}>Decline?</a></h6>
 {% else %}
     <h6>No requests to tackle currently.</h6>
 {% endfor %}

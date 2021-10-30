@@ -242,7 +242,7 @@ def diplomacy(game_id):
     
     for diplo_request in diplo_requests:
         sender = db.session.query(Empires).filter_by(id=diplo_request.sender).first()
-        diplomacy_requests.append([diplo_request.type, sender.name, url_for('rooms.request_accept', game_id=game_id, request_id=diplo_request.id, sender=sender.id)])
+        diplomacy_requests.append([diplo_request.type, sender.name, url_for('rooms.request_accept', game_id=game_id, request_id=diplo_request.id, sender=sender.id), url_for('rooms.request_decline', game_id=game_id, request_id=diplo_request.id, sender=sender.id)])
     sent_diplos = db.session.query(Diplo_Reqs).filter_by(sender=current_empire.id)
 
     for sent_diplo in sent_diplos:
@@ -287,6 +287,14 @@ def request_accept(game_id, request_id, sender):
         db.session.add(alliance)
         db.session.commit()
         flash('You have accepted the request for an alliance.', category='success')
+    db.session.delete(diplo_action)
+    db.session.commit()
+    return redirect(url_for('rooms.diplomacy', game_id=game_id))
+
+@login_required
+@rooms.route('<int:game_id>/diplomacy/<int:request_id>/<int:sender>/decline')
+def request_decline(game_id, request_id, sender):
+    diplo_action = db.session.query(Diplo_Reqs).filter_by(id=request_id).first()
     db.session.delete(diplo_action)
     db.session.commit()
     return redirect(url_for('rooms.diplomacy', game_id=game_id))
