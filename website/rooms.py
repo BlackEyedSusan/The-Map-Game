@@ -223,7 +223,7 @@ def map(game_id):
             avail_colors.append(color)
     avail_colors.append([current_tag, str(current_color).title().replace('-', ' '), current_color])
     territory_list = []
-    for territory in db.session.query(Territories):
+    for territory in db.session.query(Territories).filter_by(game=game_id):
         territory_list.append(territory)
     return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
 
@@ -362,7 +362,11 @@ def diplomacyplayer(game_id, empire_id):
     return render_template("diplomacyplayer.html", user=current_user, target_empire=target_empire, current_empire=current_empire, at_war=at_war, allied=allied, is_puppet=is_puppet, is_controller=is_controller)
 
 
-def init_territories_default(game_id, DEFAULT_OWNER=0):
-    alaska = Territories(name="Alaska", owner=DEFAULT_OWNER, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Artic")
+def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
+    alaska = Territories(name="Alaska", territory_id=1, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Artic")
+    yukon = Territories(name="Yukon", territory_id=2, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=86878, gdp=6920000000, area=1828458, oil="True", uranium="True", gold="True", biome="Tundra", region="Arcitc")
+    nunavut = Territories(name="Nunavut", territory_id=3, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=38780, gdp=3160000000, area=1611677, oil="False", uranium="False", gold="True", biome="Tundra", region="Arctic")
     db.session.add(alaska)
+    db.session.add(yukon)
+    db.session.add(nunavut)
     db.session.commit()
