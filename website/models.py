@@ -36,8 +36,10 @@ class Empires(db.Model):
 
 class Territories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    territory_id = db.Column(db.Integer)
     name = db.Column(db.String(50))
     owner = db.Column(db.Integer)
+    color = db.Column(db.String(15))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
     pop = db.Column(db.Integer)
     gdp = db.Column(db.Integer)

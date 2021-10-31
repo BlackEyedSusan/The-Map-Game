@@ -14,9 +14,14 @@
             background-color: #404040;
             border: none;
             ">
+    
     <h4><a class="link" href="{{url_for('rooms.diplomacy', game_id=game_id)}}">Diplomacy</a></h4>
+    {% for territory in territory_list %}
+        <div class="overlay">{{territory.name}}</div>
+    {% endfor %}
 </div>
 <div id="containers">
+    
     <?xml version='1.0' encoding='UTF-8' standalone='no'?>
 <svg height="209.973mm" xmlns="http://www.w3.org/2000/svg" baseProfile="tiny" viewBox="0 0 3507 2480" width="296.926mm" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2">
  <defs/>
@@ -4515,7 +4520,6 @@
  </g>
 </svg>
 
-    <div class="overlay">{{territory_list[0].name}}</div>
 </div>
 <script type="text/javascript" src="/static/map.js"></script>
 {% endblock %}
