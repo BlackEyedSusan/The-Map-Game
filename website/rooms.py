@@ -272,10 +272,11 @@ def diplomacy(game_id):
 @login_required
 @rooms.route('<int:game_id>/diplomacy/<int:request_id>/<int:sender>/accept')
 def request_accept(game_id, request_id, sender):
+    current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
     diplo_action = db.session.query(Diplo_Reqs).filter_by(id=request_id).first()
     if diplo_action.type == 'peace':
-        war1 = db.session.query(Wars).filter_by(attacker=current_user.id, defender=sender).first()
-        war2 = db.session.query(Wars).filter_by(attacker=sender, defender=current_user.id).first()
+        war1 = db.session.query(Wars).filter_by(attacker=current_empire.id, defender=sender).first()
+        war2 = db.session.query(Wars).filter_by(attacker=sender, defender=current_empire.id).first()
         if war1 != None:
             db.session.delete(war1)
         if war2 != None:
@@ -283,7 +284,7 @@ def request_accept(game_id, request_id, sender):
         db.session.commit()
         flash('You have accepted the request for peace.', category='success')
     if diplo_action.type == 'ally':
-        alliance = Alliances(empire1 = current_user.id, empire2 = sender)
+        alliance = Alliances(empire1 = current_empire.id, empire2 = sender)
         db.session.add(alliance)
         db.session.commit()
         flash('You have accepted the request for an alliance.', category='success')
@@ -348,8 +349,12 @@ def diplomacyplayer(game_id, empire_id):
     at_war2 = db.session.query(Wars).filter_by(attacker=target_empire.id, defender=current_empire.id).first()
     if at_war1 != None or at_war2 != None:
         at_war = True
+    print(current_empire)
+    print(target_empire)
     allied1 = db.session.query(Alliances).filter_by(empire1=current_empire.id, empire2=target_empire.id).first()
     allied2 = db.session.query(Alliances).filter_by(empire1=target_empire.id, empire2=current_empire.id).first()
+    print(allied1)
+    print(allied2)
     if allied1 != None or allied2 != None:
         allied = True
     puppet1 = db.session.query(Puppets).filter_by(controller=current_empire.id, puppet=target_empire.id).first()
