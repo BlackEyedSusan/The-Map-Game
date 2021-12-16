@@ -9,6 +9,7 @@
 
 @font-face {
     font-family: MapGame;
+    letter-spacing: 100px;
     src: url('mapgame.ttf');
 }
 
@@ -31,6 +32,7 @@
 
 h1, h2, h3 {
     font-family: MapGame;
+    letter-spacing: 2px;
 }
 
 body {

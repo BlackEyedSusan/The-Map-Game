@@ -24,7 +24,8 @@ colors = [['#FF0000', 'Red', 'red'],
             ['#0000FF', 'Dark Blue', 'dark-blue'],
             ['#8000FF', 'Purple', 'purple'],
             ['#FF00FF', 'Pink', 'pink'],
-            ['#FF0080', 'Salmon', 'salmon']]
+            ['#FF0080', 'Salmon', 'salmon'],
+            ['#40DD40', 'Dark Green', 'dark-green']]
 
 governments = [['Thalassocracy', 'thalassocracy'],
                 ['Monarchy', 'monarchy'],
@@ -59,7 +60,13 @@ country_flags = [['Austria Hungary', '/static/flags/country/austria_hungary.png'
                 ['Saudi Arabia', '/static/flags/country/saudi_arabia.png'],
                 ['Soviet Union', '/static/flags/country/soviet_union.png'],
                 ['United States', '/static/flags/country/united_states.png'],
-                ['Venice', '/static/flags/country/venice.png']]
+                ['Venice', '/static/flags/country/venice.png'],
+                ['Portugal', '/static/flags/country/portugal.png'],
+                ['Imperial Germany', '/static/flags/country/imperial_germany.png'],
+                ['Ethiopia', '/static/flags/country/ethiopia.png'],
+                ['Iraq', '/static/flags/country/iraq.png'],
+                ['Nepal', '/static/flags/country/nepal.png'],
+                ['Chad', '/static/flags/country/chad.png']]
 
 @rooms.route('<int:game_id>', methods=["GET", "POST"])
 @login_required
