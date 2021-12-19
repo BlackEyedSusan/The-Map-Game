@@ -7,6 +7,7 @@ from . import db
 from flask_sqlalchemy import event
 from PIL import Image
 import os
+import random
 Session = sessionmaker()
 
 
@@ -97,7 +98,7 @@ def room(game_id):
                 flash('That color is in use.', category='error')
             else:
                 if flag1.filename != '':
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0)
                     filename = str(current_user.id) + str(game_id) + ".png"
                     flag1.save(os.path.join('website/static/flags/uploaded/', filename))
                     image = Image.open(f'website/static/flags/uploaded/{filename}')
@@ -105,7 +106,7 @@ def room(game_id):
                     image.save(f'website/static/flags/uploaded/{filename}')
                     new_empire.flag = f'/static/flags/uploaded/{filename}'
                 else:
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0)
                 empire_query = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
                 if empire_query:
                     if empire_query.game == game_id:
@@ -132,7 +133,7 @@ def room(game_id):
             if all_ready:
                 current_game.is_started = "True"
                 db.session.commit()
-                init_territories_default(current_game.id)
+                init_territories_random(current_game.id)
                 return redirect(url_for('rooms.map', game_id=game_id))
             else:
                 flash('A user has not finished setting up their empire yet.', category='error')
@@ -370,10 +371,82 @@ def diplomacyplayer(game_id, empire_id):
 
 
 def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
-    alaska = Territories(name="Alaska", territory_id=1, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Artic")
+    alaska = Territories(name="Alaska", territory_id=1, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Arctic")
     yukon = Territories(name="Yukon", territory_id=2, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=86878, gdp=6920000000, area=1828458, oil="True", uranium="True", gold="True", biome="Tundra", region="Arcitc")
     nunavut = Territories(name="Nunavut", territory_id=3, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=38780, gdp=3160000000, area=1611677, oil="False", uranium="False", gold="True", biome="Tundra", region="Arctic")
     db.session.add(alaska)
     db.session.add(yukon)
     db.session.add(nunavut)
     db.session.commit()
+
+def randomizer_pop():
+    return round(random.uniform(0.6, 1.4)*5072021)
+def randomizer_area():
+    return round(random.uniform(0.6, 1.4)*38103)
+def randomizer_gdp():
+    return round(random.uniform(0.6, 1.4)*89827668129)
+def randomizer_forts():
+    randomInt = random.randint(1, 20)
+    if randomInt == 1:
+        return 1
+    else:
+        return 0
+
+def init_territories_random(game_id, ):
+    
+    alaska = Territories(name="Alaska", territory_id=1, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    yukon = Territories(name="Yukon", territory_id=2, owner=0, color="gray", game=game_id,  gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    nunavut = Territories(name="Nunavut", territory_id=3, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    db.session.add(alaska)
+    db.session.add(yukon)
+    db.session.add(nunavut)
+    db.session.commit()
+    '''nunavut
+    greenland
+    british_columbia
+    alberta
+    saskatchewan 
+    ontario
+    quebec
+    newfoundland
+    new_england
+    cascadia
+    rocky_mountains
+    nevada
+    alta_california
+    los_angeles
+    imperial_valley
+    vladivostok
+    great_plains
+    baja_california
+    arizona
+    south_plains
+    kamchatka
+    minnesota 
+    wisconsin 
+    michigan
+    illinois
+    north_ohio
+    south_ohio
+    west_texas
+    east_Texas
+    mississippi
+    tennessee
+    florida
+    georgia
+    atlanta
+    carolina
+    virginia 
+    pennsylvania
+    new_jersey
+    long_island
+    new_york
+    chihuahua
+    nuevo_leon
+    jalisco
+    puebla
+    mexico
+    mexico_city
+    guerrero
+    veracruz
+    chiapas'''

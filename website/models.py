@@ -32,6 +32,8 @@ class Empires(db.Model):
     #You can use foreign keys to relate tables together
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
+    oil_stockpiles = db.Column(db.Integer)
+    global_trade_power = db.Column(db.Integer)
 
 
 class Territories(db.Model):
@@ -45,6 +47,7 @@ class Territories(db.Model):
     gdp = db.Column(db.Integer)
     area = db.Column(db.Integer)
     oil = db.Column(db.String(5))
+    forts = db.Column(db.Integer)
     uranium = db.Column(db.String(5))
     gold = db.Column(db.String(5))
     biome = db.Column(db.String(20))

@@ -9,7 +9,6 @@
 
 @font-face {
     font-family: MapGame;
-    letter-spacing: 100px;
     src: url('mapgame.ttf');
 }
 
@@ -30,7 +29,7 @@
     color:#bbbbbb;
 }
 
-h1, h2, h3 {
+h1 {
     font-family: MapGame;
     letter-spacing: 2px;
 }
