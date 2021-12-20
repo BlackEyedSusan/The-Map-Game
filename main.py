@@ -3,9 +3,10 @@ import os
 from website import create_app
 from flask import render_template
 from werkzeug import exceptions
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send, emit
 from flask import Flask, flash, request, redirect, url_for, abort
 from werkzeug.utils import secure_filename
+from flask_login import current_user
 
 app = create_app()
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -38,7 +39,7 @@ socketio = SocketIO(app)
 #handles 404 errors
 @app.errorhandler(exceptions.NotFound)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('404.html', user = current_user), 404
 
 
 #makes it so it only runs the app if it is done specifically by this file

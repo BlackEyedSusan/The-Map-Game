@@ -9,4 +9,27 @@
     {% else %}
         <h4>Wait patiently for your turn please!</h4>
     {% endif %}
+    <h3>Valid Draft Picks:</h3>
+    {% for territory in valid_claims %}
+        <h4>{{territory.name}}</h4>
+    {% endfor %}
+    <h3>Your Drafted Territories:</h3>
+    {% for territory in territory_list %}
+        {% if territory.owner == current_empire.id %}
+            <h4>{{territory.name}}</h4>
+        {% endif %}
+    {% endfor %}
+    <h3>Other Drafted Territories:</h3>
+    {% for territory in territory_list %}
+        {% if territory.owner != current_empire.id and territory.owner != 0 %}
+            <h4>{{territory.name}}</h4>
+        {% endif %}
+    {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function() {
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+    </script>
 {% endblock %}

@@ -2,12 +2,13 @@ from flask import Blueprint, render_template, request, flash, url_for, redirect,
 from flask_login import login_required, current_user
 from sqlalchemy.orm.session import sessionmaker
 from werkzeug.local import F
-from .models import Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, Territories, User, Empires, Wars
+from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, Territories, User, Empires, Wars
 from . import db
 from flask_sqlalchemy import event
 from PIL import Image
 import os
 import random
+from flask_socketio import SocketIO, send, emit
 Session = sessionmaker()
 
 
@@ -98,7 +99,7 @@ def room(game_id):
                 flash('That color is in use.', category='error')
             else:
                 if flag1.filename != '':
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0, capital=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0)
                     filename = str(current_user.id) + str(game_id) + ".png"
                     flag1.save(os.path.join('website/static/flags/uploaded/', filename))
                     image = Image.open(f'website/static/flags/uploaded/{filename}')
@@ -106,7 +107,7 @@ def room(game_id):
                     image.save(f'website/static/flags/uploaded/{filename}')
                     new_empire.flag = f'/static/flags/uploaded/{filename}'
                 else:
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0, capital=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0)
                 empire_query = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
                 if empire_query:
                     if empire_query.game == game_id:
@@ -204,6 +205,9 @@ def draft(game_id):
     current_empire = None
     is_turn = False
     empire_list = []
+    territory_list = []
+    claimed = []
+    valid_claims = []
     current_game = db.session.query(Game).filter_by(id=game_id).first()
     val = current_game.ticker
     if val > 3:
@@ -217,27 +221,49 @@ def draft(game_id):
 
     if current_empire == turn:
         is_turn = True
-
-    
-
+    for territory in db.session.query(Territories).filter_by(game=game_id):
+        territory_list.append(territory)
+        if territory.owner == current_empire.id:
+            claimed.append(territory)
+     
+    for territory in db.session.query(Territories).filter_by(game=game_id):
+        if current_game.ticker > 1: 
+            for claim in claimed:
+                if is_adjacent(territory, claim) and territory.owner == 0:
+                    valid_claims.append(territory)
+        if current_game.ticker == 1:
+            if territory.owner == 0:
+                valid_claims.append(territory)
+    temp_list = []        
+    for item in valid_claims:
+        if item not in temp_list:
+            temp_list.append(item)
+    valid_claims = temp_list
     if request.method == "POST":
         input = request.form.get("draft")
-        print(input)
         for territory in db.session.query(Territories).filter_by(game=game_id):
-            print(territory.name)
             if str(territory.name).lower() == input.lower().strip():
-                territory.owner = current_empire.id
-                territory.color = current_empire.color
-                db.session.commit()
-                if len(empire_list) == current_game.draft_pos + 1:
-                    current_game.draft_pos = 0
-                    current_game.ticker += 1
-                else:
-                    current_game.draft_pos += 1
-                db.session.commit()
+                valid = False
+                if current_game.ticker > 1:
+                    for claim in claimed:
+                        if is_adjacent(territory, claim):
+                            valid = True
+                if current_game.ticker == 1:
+                    current_empire.capital = territory.id
+                    valid = True
+                if valid:
+                    territory.owner = current_empire.id
+                    territory.color = current_empire.color
+                    db.session.commit()
+                    if len(empire_list) == current_game.draft_pos + 1:
+                        current_game.draft_pos = 0
+                        current_game.ticker += 1
+                    else:
+                        current_game.draft_pos += 1
+                    db.session.commit()
         return redirect(url_for('rooms.draft', game_id=game_id))
         
-    return render_template("draft.html", user=current_user, current_empire=current_empire, is_turn=is_turn, game = current_game )
+    return render_template("draft.html", user=current_user, current_empire=current_empire, is_turn=is_turn, game = current_game, territory_list = territory_list, valid_claims=valid_claims)
     
 
 
@@ -447,12 +473,29 @@ def diplomacyplayer(game_id, empire_id):
         is_controller = True
     return render_template("diplomacyplayer.html", user=current_user, target_empire=target_empire, current_empire=current_empire, at_war=at_war, allied=allied, is_puppet=is_puppet, is_controller=is_controller)
 
+def is_adjacent(territory_1, territory_2):
+    check1 = db.session.query(Adjacencies).filter_by(territory_1=territory_1.id, territory_2=territory_2.id).first()
+    check2 = db.session.query(Adjacencies).filter_by(territory_1=territory_2.id, territory_2=territory_1.id).first()
+    if check1 != None or check2 != None:
+        return True
+    else:
+        return False
 
 def infantry_calc(area, pop, gdp, forts):
     infantry = round(area/100000+pop/4000000+gdp/1000000000000) + round(forts/2)
-    print("You have " + str(infantry) + " additional infantry")
     return infantry
 
+def tank_calc():
+    pass
+
+def sub_calc():
+    pass
+
+def transport_calc():
+    pass
+
+def destroyer_calc():
+    pass
 
 def randomizer_pop():
     return round(random.uniform(0.6, 1.4)*5072021)
@@ -481,26 +524,26 @@ def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
     db.session.commit()
 
 
-
 def init_territories_random(game_id):
-    alaska = Territories(name="Alaska", territory_id=1, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    yukon = Territories(name="Yukon", territory_id=2, owner=0, color="gray", game=game_id,  gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    nunavut = Territories(name="Nunavut", territory_id=3, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    greenland = Territories(name="Greenland", territory_id=4, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    british_columbia = Territories(name="British Columbia", territory_id=5, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    alberta = Territories(name="Alberta", territory_id=5, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    saskatchewan = Territories(name="Saskatchewan", territory_id=6, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    ontario = Territories(name="Ontario", territory_id=7, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    quebec = Territories(name="Quebec", territory_id=8, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    newfoundland = Territories(name="Newfoundland", territory_id=9, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    new_england = Territories(name="New England", territory_id=10, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    cascadia = Territories(name="Cascadia", territory_id=11, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    rocky_mountains = Territories(name="Rocky Mountains", territory_id=12, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    nevada = Territories(name="Nevada", territory_id=13, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    alta_california = Territories(name="Alta California", territory_id=14, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    los_angeles = Territories(name="Los Angeles", territory_id=15, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
-    imperial_valley = Territories(name="Imperial Valley", territory_id=16, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    alaska = Territories(name="Alaska", territory_id=1, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    yukon = Territories(name="Yukon", territory_id=2, owner=0, color="gray", game=game_id,  gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    nunavut = Territories(name="Nunavut", territory_id=3, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False",coast="False", biome="Forest", region="")
+    greenland = Territories(name="Greenland", territory_id=4, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    british_columbia = Territories(name="British Columbia", territory_id=5, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    alberta = Territories(name="Alberta", territory_id=6, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    saskatchewan = Territories(name="Saskatchewan", territory_id=7, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    ontario = Territories(name="Ontario", territory_id=8, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    quebec = Territories(name="Quebec", territory_id=9, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    newfoundland = Territories(name="Newfoundland", territory_id=10, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    new_england = Territories(name="New England", territory_id=11, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    cascadia = Territories(name="Cascadia", territory_id=12, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    rocky_mountains = Territories(name="Rocky Mountains", territory_id=13, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    nevada = Territories(name="Nevada", territory_id=14, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    alta_california = Territories(name="Alta California", territory_id=15, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    los_angeles = Territories(name="Los Angeles", territory_id=16, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
+    imperial_valley = Territories(name="Imperial Valley", territory_id=17, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")
     
+
     db.session.add(alaska)
     db.session.add(yukon)
     db.session.add(nunavut)
@@ -519,3 +562,35 @@ def init_territories_random(game_id):
     db.session.add(los_angeles)
     db.session.add(imperial_valley)
     db.session.commit()
+
+    adj_list = []
+    adj_list.append(Adjacencies(territory_1 = alaska.id, territory_2 = yukon.id))
+    adj_list.append(Adjacencies(territory_1 = alaska.id, territory_2 = british_columbia.id))
+    adj_list.append(Adjacencies(territory_1 = yukon.id, territory_2 = nunavut.id))
+    adj_list.append(Adjacencies(territory_1 = yukon.id, territory_2 = british_columbia.id))
+    adj_list.append(Adjacencies(territory_1 = yukon.id, territory_2 = alberta.id))
+    adj_list.append(Adjacencies(territory_1 = yukon.id, territory_2 = saskatchewan.id))
+    adj_list.append(Adjacencies(territory_1 = nunavut.id, territory_2 = saskatchewan.id))
+    adj_list.append(Adjacencies(territory_1 = british_columbia.id, territory_2 = alberta.id))
+    adj_list.append(Adjacencies(territory_1 = british_columbia.id, territory_2 = cascadia.id))
+    adj_list.append(Adjacencies(territory_1 = british_columbia.id, territory_2 = rocky_mountains.id))
+    adj_list.append(Adjacencies(territory_1 = alberta.id, territory_2 = rocky_mountains.id))
+    adj_list.append(Adjacencies(territory_1 = alberta.id, territory_2 = saskatchewan.id))
+    adj_list.append(Adjacencies(territory_1 = saskatchewan.id, territory_2 = ontario.id))
+    adj_list.append(Adjacencies(territory_1 = saskatchewan.id, territory_2 = rocky_mountains.id))
+    adj_list.append(Adjacencies(territory_1 = ontario.id, territory_2 = quebec.id))
+    adj_list.append(Adjacencies(territory_1 = ontario.id, territory_2 = newfoundland.id))
+    adj_list.append(Adjacencies(territory_1 = quebec.id, territory_2 = newfoundland.id))
+    adj_list.append(Adjacencies(territory_1 = quebec.id, territory_2 = new_england.id))
+    adj_list.append(Adjacencies(territory_1 = newfoundland.id, territory_2 = new_england.id))
+    adj_list.append(Adjacencies(territory_1 = cascadia.id, territory_2 = rocky_mountains.id))
+    adj_list.append(Adjacencies(territory_1 = cascadia.id, territory_2 = nevada.id))
+    adj_list.append(Adjacencies(territory_1 = rocky_mountains.id, territory_2 = nevada.id))
+    adj_list.append(Adjacencies(territory_1 = alta_california.id, territory_2 = nevada.id))
+    adj_list.append(Adjacencies(territory_1 = alta_california.id, territory_2 = los_angeles.id))
+    adj_list.append(Adjacencies(territory_1 = los_angeles.id, territory_2 = imperial_valley.id))
+    adj_list.append(Adjacencies(territory_1 = rocky_mountains.id, territory_2 = nevada.id))
+    for item in adj_list:
+        db.session.add(item)
+    db.session.commit()
+

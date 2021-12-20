@@ -36,6 +36,8 @@ class Empires(db.Model):
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
     oil_stockpiles = db.Column(db.Integer)
     global_trade_power = db.Column(db.Integer)
+    uranium = db.Column(db.Integer)
+    enriched_uranium = db.Column(db.Integer)
     capital = db.Column(db.Integer, db.ForeignKey('territories.id'))
 
 
@@ -53,8 +55,15 @@ class Territories(db.Model):
     forts = db.Column(db.Integer)
     uranium = db.Column(db.String(5))
     gold = db.Column(db.String(5))
+    coast = db.Column(db.String(5))
     biome = db.Column(db.String(20))
     region = db.Column(db.String(25))
+
+
+class Adjacencies(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    territory_1 = db.Column(db.Integer, db.ForeignKey('territories.id'))
+    territory_2 = db.Column(db.Integer, db.ForeignKey('territories.id'))
 
 
 class Military(db.Model):
