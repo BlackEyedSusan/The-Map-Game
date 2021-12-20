@@ -15,6 +15,8 @@ class Game(db.Model):
     is_started = db.Column(db.String(5))
     code = db.Column(db.String(10), unique=True)
     host = db.Column(db.Integer, db.ForeignKey('user.id'))
+    draft_pos = db.Column(db.Integer)
+    ticker = db.Column(db.Integer)
 
 
 class GamesJoined(db.Model):
@@ -34,6 +36,7 @@ class Empires(db.Model):
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
     oil_stockpiles = db.Column(db.Integer)
     global_trade_power = db.Column(db.Integer)
+    capital = db.Column(db.Integer, db.ForeignKey('territories.id'))
 
 
 class Territories(db.Model):

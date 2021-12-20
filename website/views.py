@@ -94,7 +94,7 @@ def create_game():
             flash('The game room\'s name must be at least 4 characters.', category='error')
         else:
             game = Game.query.filter_by(code=code).first()
-            new_game = Game(game_name=name, code=code, host=current_user.id, is_started="False")
+            new_game = Game(game_name=name, code=code, host=current_user.id, is_started="False", draft_pos = 0, ticker = 1)
             db.session.add(new_game)
             db.session.commit()
             game = Game.query.filter_by(code=code).first()

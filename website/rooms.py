@@ -75,7 +75,7 @@ def room(game_id):
     current_game = db.session.query(Game).filter_by(id=game_id).first()
 
     if str(current_game.is_started) == "True":
-        return redirect(url_for('rooms.map', game_id=game_id))
+        return redirect(url_for('rooms.draft', game_id=game_id))
 
     if request.method == "POST":
         
@@ -98,7 +98,7 @@ def room(game_id):
                 flash('That color is in use.', category='error')
             else:
                 if flag1.filename != '':
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0, capital=0)
                     filename = str(current_user.id) + str(game_id) + ".png"
                     flag1.save(os.path.join('website/static/flags/uploaded/', filename))
                     image = Image.open(f'website/static/flags/uploaded/{filename}')
@@ -106,7 +106,7 @@ def room(game_id):
                     image.save(f'website/static/flags/uploaded/{filename}')
                     new_empire.flag = f'/static/flags/uploaded/{filename}'
                 else:
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0, capital=0)
                 empire_query = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
                 if empire_query:
                     if empire_query.game == game_id:
@@ -134,7 +134,7 @@ def room(game_id):
                 current_game.is_started = "True"
                 db.session.commit()
                 init_territories_random(current_game.id)
-                return redirect(url_for('rooms.map', game_id=game_id))
+                return redirect(url_for('rooms.draft', game_id=game_id))
             else:
                 flash('A user has not finished setting up their empire yet.', category='error')
                 return redirect(url_for('rooms.room', game_id=game_id))
@@ -152,6 +152,7 @@ def room(game_id):
     current_color = None
     current_tag = None
     current_empire = "None"
+    name_color = "None"
     games = db.session.query(Game).filter_by(id = game_id).first()
     if current_user.id == games.host:
         is_host = True
@@ -183,11 +184,64 @@ def room(game_id):
         if search == None:
             avail_flags.append(banner)
     avail_colors.append([current_tag, str(current_color).title().replace('-', ' '), current_color])
-    return render_template("room.html", user=current_user, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, avail_flags=avail_flags, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
+    for color in colors:
+        if color[0] == current_empire.color:
+            name_color= color[1]
+    return render_template("room.html", user=current_user, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, avail_flags=avail_flags,
+                            used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, name_color = name_color,
+                            govs=governments, current_gov=current_gov)
 
 @event.listens_for(Session, 'after_commit')
 def receive_after_commit(session):
     print('commit done.')
+
+
+
+
+@rooms.route('<int:game_id>/draft', methods=['POST', "GET"])
+@login_required
+def draft(game_id):
+    current_empire = None
+    is_turn = False
+    empire_list = []
+    current_game = db.session.query(Game).filter_by(id=game_id).first()
+    val = current_game.ticker
+    if val > 3:
+        return redirect(url_for('rooms.map', game_id=game_id))
+    
+    for empire in db.session.query(Empires).filter_by(game=game_id):
+        if empire.user == current_user.id:
+            current_empire = empire
+        empire_list.append(empire)
+    turn = empire_list[current_game.draft_pos]
+
+    if current_empire == turn:
+        is_turn = True
+
+    
+
+    if request.method == "POST":
+        input = request.form.get("draft")
+        print(input)
+        for territory in db.session.query(Territories).filter_by(game=game_id):
+            print(territory.name)
+            if str(territory.name).lower() == input.lower().strip():
+                territory.owner = current_empire.id
+                territory.color = current_empire.color
+                db.session.commit()
+                if len(empire_list) == current_game.draft_pos + 1:
+                    current_game.draft_pos = 0
+                    current_game.ticker += 1
+                else:
+                    current_game.draft_pos += 1
+                db.session.commit()
+        return redirect(url_for('rooms.draft', game_id=game_id))
+        
+    return render_template("draft.html", user=current_user, current_empire=current_empire, is_turn=is_turn, game = current_game )
+    
+
+
+
 
 @rooms.route('<int:game_id>/map', methods=['POST', 'GET'])
 @login_required
@@ -233,7 +287,22 @@ def map(game_id):
     territory_list = []
     for territory in db.session.query(Territories).filter_by(game=game_id):
         territory_list.append(territory)
-    return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments, current_gov=current_gov)
+    total_area = 0
+    total_pop = 0
+    total_gdp = 0
+    total_forts = 0
+    for territory in db.session.query(Territories).filter_by(game=game_id, owner=current_empire.id):
+        total_area += territory.area
+        total_pop += territory.pop
+        total_gdp += territory.gdp
+        total_forts += territory.forts
+    infantry = infantry_calc(total_area, total_pop, total_gdp, total_forts)
+    return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host,
+                            used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments,
+                            current_gov=current_gov, infantry=infantry)
+
+
+
 
 @login_required
 @rooms.route('<int:game_id>/diplomacy', methods=['GET', 'POST'])
@@ -277,6 +346,9 @@ def diplomacy(game_id):
         territory_list.append(territory)
     return render_template("diplomacy.html", user=current_user, sent_diplos=sent_diplomacy, diplomacy_requests = diplomacy_requests, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host, current_empire=current_empire, govs=governments, current_gov=current_gov)
 
+
+
+
 @login_required
 @rooms.route('<int:game_id>/diplomacy/<int:request_id>/<int:sender>/accept')
 def request_accept(game_id, request_id, sender):
@@ -300,6 +372,9 @@ def request_accept(game_id, request_id, sender):
     db.session.commit()
     return redirect(url_for('rooms.diplomacy', game_id=game_id))
 
+
+
+
 @login_required
 @rooms.route('<int:game_id>/diplomacy/<int:request_id>/<int:sender>/decline')
 def request_decline(game_id, request_id, sender):
@@ -307,6 +382,9 @@ def request_decline(game_id, request_id, sender):
     db.session.delete(diplo_action)
     db.session.commit()
     return redirect(url_for('rooms.diplomacy', game_id=game_id))
+
+
+
 
 @login_required
 @rooms.route('<int:game_id>/diplomacy/<empire_id>', methods=['GET', 'POST'])
@@ -370,6 +448,29 @@ def diplomacyplayer(game_id, empire_id):
     return render_template("diplomacyplayer.html", user=current_user, target_empire=target_empire, current_empire=current_empire, at_war=at_war, allied=allied, is_puppet=is_puppet, is_controller=is_controller)
 
 
+def infantry_calc(area, pop, gdp, forts):
+    infantry = round(area/100000+pop/4000000+gdp/1000000000000) + round(forts/2)
+    print("You have " + str(infantry) + " additional infantry")
+    return infantry
+
+
+def randomizer_pop():
+    return round(random.uniform(0.6, 1.4)*5072021)
+
+def randomizer_area():
+    return round(random.uniform(0.6, 1.4)*38103)
+
+def randomizer_gdp():
+    return round(random.uniform(0.6, 1.4)*89827668129)
+
+def randomizer_forts():
+    randomInt = random.randint(1, 20)
+    if randomInt == 1:
+        return 1
+    else:
+        return 0
+
+
 def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
     alaska = Territories(name="Alaska", territory_id=1, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=731545, gdp=49120000000, area=1717939, oil="True", uranium="False", gold="True", biome="Forest", region="Arctic")
     yukon = Territories(name="Yukon", territory_id=2, owner=DEFAULT_OWNER, color=DEFAULT_COLOR, game=game_id, pop=86878, gdp=6920000000, area=1828458, oil="True", uranium="True", gold="True", biome="Tundra", region="Arcitc")
@@ -379,74 +480,42 @@ def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
     db.session.add(nunavut)
     db.session.commit()
 
-def randomizer_pop():
-    return round(random.uniform(0.6, 1.4)*5072021)
-def randomizer_area():
-    return round(random.uniform(0.6, 1.4)*38103)
-def randomizer_gdp():
-    return round(random.uniform(0.6, 1.4)*89827668129)
-def randomizer_forts():
-    randomInt = random.randint(1, 20)
-    if randomInt == 1:
-        return 1
-    else:
-        return 0
 
-def init_territories_random(game_id, ):
-    
+
+def init_territories_random(game_id):
     alaska = Territories(name="Alaska", territory_id=1, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
     yukon = Territories(name="Yukon", territory_id=2, owner=0, color="gray", game=game_id,  gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
     nunavut = Territories(name="Nunavut", territory_id=3, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    greenland = Territories(name="Greenland", territory_id=4, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    british_columbia = Territories(name="British Columbia", territory_id=5, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    alberta = Territories(name="Alberta", territory_id=5, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    saskatchewan = Territories(name="Saskatchewan", territory_id=6, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    ontario = Territories(name="Ontario", territory_id=7, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    quebec = Territories(name="Quebec", territory_id=8, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    newfoundland = Territories(name="Newfoundland", territory_id=9, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    new_england = Territories(name="New England", territory_id=10, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    cascadia = Territories(name="Cascadia", territory_id=11, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    rocky_mountains = Territories(name="Rocky Mountains", territory_id=12, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    nevada = Territories(name="Nevada", territory_id=13, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    alta_california = Territories(name="Alta California", territory_id=14, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    los_angeles = Territories(name="Los Angeles", territory_id=15, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    imperial_valley = Territories(name="Imperial Valley", territory_id=16, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", biome="Forest", region="")
+    
     db.session.add(alaska)
     db.session.add(yukon)
     db.session.add(nunavut)
+    db.session.add(greenland)
+    db.session.add(british_columbia)
+    db.session.add(alberta)
+    db.session.add(saskatchewan)
+    db.session.add(ontario)
+    db.session.add(quebec)
+    db.session.add(newfoundland)
+    db.session.add(new_england)
+    db.session.add(cascadia)
+    db.session.add(rocky_mountains)
+    db.session.add(nevada)
+    db.session.add(alta_california)
+    db.session.add(los_angeles)
+    db.session.add(imperial_valley)
     db.session.commit()
-    '''nunavut
-    greenland
-    british_columbia
-    alberta
-    saskatchewan 
-    ontario
-    quebec
-    newfoundland
-    new_england
-    cascadia
-    rocky_mountains
-    nevada
-    alta_california
-    los_angeles
-    imperial_valley
-    vladivostok
-    great_plains
-    baja_california
-    arizona
-    south_plains
-    kamchatka
-    minnesota 
-    wisconsin 
-    michigan
-    illinois
-    north_ohio
-    south_ohio
-    west_texas
-    east_Texas
-    mississippi
-    tennessee
-    florida
-    georgia
-    atlanta
-    carolina
-    virginia 
-    pennsylvania
-    new_jersey
-    long_island
-    new_york
-    chihuahua
-    nuevo_leon
-    jalisco
-    puebla
-    mexico
-    mexico_city
-    guerrero
-    veracruz
-    chiapas'''

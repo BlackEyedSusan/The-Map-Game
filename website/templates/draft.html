@@ -1,0 +1,12 @@
+{% extends "base.html" %} {% block title %}Draft{% endblock %}
+{% block content %}
+    <h2>Drafting: Round {{game.ticker}}</h2>
+    {% if is_turn %}
+        <form method="POST">
+            <input name="draft" type="text" id="draft"/>
+            <button type="submit" class="main-button" id="draft_button">Draft</button>
+        </form>
+    {% else %}
+        <h4>Wait patiently for your turn please!</h4>
+    {% endif %}
+{% endblock %}
