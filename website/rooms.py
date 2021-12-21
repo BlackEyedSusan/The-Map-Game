@@ -511,6 +511,14 @@ def get_valid_claims(game_id):
     valid_claims = temp_list
     return valid_claims
 
+def get_empire_list(game_id):
+    empire_list = []
+    for empire in db.session.query(Empires).filter_by(game=game_id['data']):
+        user = db.session.query(User).filter_by(id=empire.user).first()
+        fixed_empire_color = str(empire.color).lower().replace(' ', '-')
+        empire_list.append([empire.name, fixed_empire_color, user.username, url_for('profiles.profile', user_id=user.id)])
+    return empire_list
+
 def is_turn(game_id):
     current_empire = None
     is_turn = False

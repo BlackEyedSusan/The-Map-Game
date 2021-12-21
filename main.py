@@ -47,7 +47,6 @@ def page_not_found(e):
 @socketio.on('draft')
 def draft(game_id):
     join_room(game_id['data'])
-    print(current_user.username)
     emit('detour', {'data': game_id['data']}, to=game_id['data'])
 
 @socketio.on('valid')
@@ -55,14 +54,24 @@ def valid(game_id):
     valid_claims = rooms.get_valid_claims(game_id)
     is_turn = rooms.is_turn(game_id)
     round = db.session.query(Game).filter_by(id=game_id['data']).first().ticker
-    print("Round is " + str(round))
-    print(current_user.username + " has reached valid claims")
     emit("refresh", {'data': game_id['data'], 'claims': valid_claims, 'is_turn': is_turn, 'round': round})
 
 @socketio.on('draft_leave')
 def draft_leave(game_id):
     leave_room(game_id['data'])
     print("User left Room " + str(game_id['data']))
+
+@socketio.on('empire')
+def empire(game_id):
+    join_room(game_id['data'])
+    emit("broadcast", game_id, to=game_id["data"])
+
+@socketio.on('updates')
+def updates(game_id):
+    empire_list = rooms.get_empire_list(game_id)
+    emit("update", {'data': game_id['data'], 'empire_list': empire_list})
+
+
 
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':

@@ -9,7 +9,7 @@
 <br/>
 <h1 align="center"> {{ game.game_name }} </h1>
 <br/>
-<div>
+<div id = "empire_list">
 {% for player in players %}
     {% set empire_name = "No Empire Name" %}
     {% for key, value in empire_key.items() %}
@@ -74,6 +74,32 @@
     <div class="flag-icon" style="background-image: url({{current_empire.flag}}); background-size: 75px 50px;"></div>
 </div>
 </div>
+<input type="hidden" id=game value="{{game.id}}"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+    var game_id = document.getElementById("game").value;
+    var socket = io();
+    socket.on('connect', function() {
+        socket.emit('empire', {data: game_id});
+    });
+    socket.on('reconnect', function() {
+        socket.emit('empire', {data: game_id});
+    });
+    socket.on('broadcast', function(game) {
+        socket.emit('updates', game);
+    });
+    socket.on('update', function(game_id) {
+        console.log(game_id['empire_list']);
+        var emp_list = document.getElementById("empire_list");
+        str = "";
+        for (var ind = 0; ind < game_id['empire_list'].length; ind++) {
+            console.log('here!')
+            str += '<div><div class="box ' + game_id['empire_list'][ind][1] +'"></div><h3 class="empire">' + game_id['empire_list'][ind][0] + ' <a class="empire link" href=' + game_id['empire_list'][ind][3] + '>' + game_id['empire_list'][ind][2]+'</a></h3></div>';
+        }
+        console.log(str);
+        emp_list.innerHTML = str;
+    });
+</script>
 </body>
 <script type="text/javascript" src="/static/rooms.js"></script>
 {% endblock %}
