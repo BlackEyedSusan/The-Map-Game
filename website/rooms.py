@@ -241,9 +241,11 @@ def draft(game_id):
     valid_claims = temp_list
     if request.method == "POST":
         input = request.form.get("draft")
+        object_input = None
         for territory in db.session.query(Territories).filter_by(game=game_id):
             if str(territory.name).lower() == input.lower().strip():
                 valid = False
+                object_input = territory
                 if current_game.ticker > 1:
                     for claim in claimed:
                         if is_adjacent(territory, claim):
@@ -261,6 +263,10 @@ def draft(game_id):
                     else:
                         current_game.draft_pos += 1
                     db.session.commit()
+                else:
+                    flash("You are not adjacent to that territory, try again", category="error")
+        if object_input not in db.session.query(Territories).filter_by(game=game_id):
+            flash("That territory does not exist, try again", category="error")
         return redirect(url_for('rooms.draft', game_id=game_id))
         
     return render_template("draft.html", user=current_user, current_empire=current_empire, is_turn=is_turn, game = current_game, territory_list = territory_list, valid_claims=valid_claims)

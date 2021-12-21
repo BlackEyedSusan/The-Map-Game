@@ -3,7 +3,7 @@ import os
 from website import create_app
 from flask import render_template
 from werkzeug import exceptions
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from flask import Flask, flash, request, redirect, url_for, abort
 from werkzeug.utils import secure_filename
 from flask_login import current_user
@@ -41,6 +41,24 @@ socketio = SocketIO(app)
 def page_not_found(e):
     return render_template('404.html', user = current_user), 404
 
+@socketio.on('draft')
+def draft(game_id):
+    print(game_id)
+    emit('draft', game_id=game_id, broadcast=True)
+    print(current_user.username)
+    return redirect(url_for('rooms.draft', game_id=game_id['data']))
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    send("Joined Room.")
+
+@socketio.on('join')
+def on_leave(data):
+    room = data['room']
+    leave_room(room)
+    send("Left Room.")
 
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':

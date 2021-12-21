@@ -1,10 +1,13 @@
 {% extends "base.html" %} {% block title %}Draft{% endblock %}
 {% block content %}
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
     <h2>Drafting: Round {{game.ticker}}</h2>
     {% if is_turn %}
         <form method="POST">
             <input name="draft" type="text" id="draft"/>
-            <button type="submit" class="main-button" id="draft_button">Draft</button>
+            <input type="submit" class="main-button" id="draft_button" value="Draft" onclick="draft();"/>
         </form>
     {% else %}
         <h4>Wait patiently for your turn please!</h4>
@@ -25,11 +28,18 @@
             <h4>{{territory.name}}</h4>
         {% endif %}
     {% endfor %}
+    <input type="hidden" id=game value="{{game.id}}"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
         var socket = io();
-        socket.on('connect', function() {
-            socket.emit('my event', {data: 'I\'m connected!'});
-        });
+        var game_id = document.getElementById("game").value;
+        /*socket.on('connect', function() {
+            socket.emit('draft', {data: game_id});
+        });*/
+        
+        function draft() {
+            console.log(game_id)
+            socket.emit('draft', {"data": game_id})
+        }
     </script>
 {% endblock %}
