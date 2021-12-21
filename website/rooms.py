@@ -487,6 +487,46 @@ def is_adjacent(territory_1, territory_2):
     else:
         return False
 
+def get_valid_claims(game_id):
+    current_game = db.session.query(Game).filter_by(id=game_id['data']).first()
+    current_empire = db.session.query(Empires).filter_by(game=game_id['data'], user=current_user.id).first()
+    valid_claims = []
+    claimed = []
+    for territory in db.session.query(Territories).filter_by(game=game_id['data']):
+        if territory.owner == current_empire.id:
+            claimed.append(territory)
+    
+    for territory in db.session.query(Territories).filter_by(game=game_id['data']):
+        if current_game.ticker > 1: 
+            for claim in claimed:
+                if is_adjacent(territory, claim) and territory.owner == 0:
+                    valid_claims.append(territory.name)
+        if current_game.ticker == 1:
+            if territory.owner == 0:
+                valid_claims.append(territory.name)
+    temp_list = []        
+    for item in valid_claims:
+        if item not in temp_list:
+            temp_list.append(item)
+    valid_claims = temp_list
+    return valid_claims
+
+def is_turn(game_id):
+    current_empire = None
+    is_turn = False
+    empire_list = []
+    current_game = db.session.query(Game).filter_by(id=game_id['data']).first()
+    
+    for empire in db.session.query(Empires).filter_by(game=game_id['data']):
+        if empire.user == current_user.id:
+            current_empire = empire
+        empire_list.append(empire)
+    turn = empire_list[current_game.draft_pos]
+
+    if current_empire == turn:
+        is_turn = True
+    return is_turn
+
 def infantry_calc(area, pop, gdp, forts):
     infantry = round(area/100000+pop/4000000+gdp/1000000000000) + round(forts/2)
     return infantry

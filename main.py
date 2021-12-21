@@ -7,6 +7,9 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from flask import Flask, flash, request, redirect, url_for, abort
 from werkzeug.utils import secure_filename
 from flask_login import current_user
+import website.rooms as rooms
+from website import db
+from website.models import Game
 
 app = create_app()
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -43,22 +46,23 @@ def page_not_found(e):
 
 @socketio.on('draft')
 def draft(game_id):
-    print(game_id)
-    emit('draft', game_id=game_id, broadcast=True)
+    join_room(game_id['data'])
     print(current_user.username)
-    return redirect(url_for('rooms.draft', game_id=game_id['data']))
+    emit('detour', {'data': game_id['data']}, to=game_id['data'])
 
-@socketio.on('join')
-def on_join(data):
-    room = data['room']
-    join_room(room)
-    send("Joined Room.")
+@socketio.on('valid')
+def valid(game_id):
+    valid_claims = rooms.get_valid_claims(game_id)
+    is_turn = rooms.is_turn(game_id)
+    round = db.session.query(Game).filter_by(id=game_id['data']).first().ticker
+    print("Round is " + str(round))
+    print(current_user.username + " has reached valid claims")
+    emit("refresh", {'data': game_id['data'], 'claims': valid_claims, 'is_turn': is_turn, 'round': round})
 
-@socketio.on('join')
-def on_leave(data):
-    room = data['room']
-    leave_room(room)
-    send("Left Room.")
+@socketio.on('draft_leave')
+def draft_leave(game_id):
+    leave_room(game_id['data'])
+    print("User left Room " + str(game_id['data']))
 
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':

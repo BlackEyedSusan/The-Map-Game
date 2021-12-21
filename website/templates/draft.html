@@ -3,19 +3,18 @@
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
-    <h2>Drafting: Round {{game.ticker}}</h2>
-    {% if is_turn %}
-        <form method="POST">
-            <input name="draft" type="text" id="draft"/>
-            <input type="submit" class="main-button" id="draft_button" value="Draft" onclick="draft();"/>
-        </form>
-    {% else %}
-        <h4>Wait patiently for your turn please!</h4>
-    {% endif %}
+    <h2 id="round">Drafting: Round {{game.ticker}}</h2>
+    <form method="POST" style="display: none;" id="draft_form">
+        <input name="draft" type="text" id="draft"/>
+        <input type="submit" class="main-button" id="draft_button" value="Draft" onclick="draft();"/>
+    </form>
+    <h4 id="wait">Wait patiently for your turn please!</h4>
     <h3>Valid Draft Picks:</h3>
+    <div id="outer">
     {% for territory in valid_claims %}
-        <h4>{{territory.name}}</h4>
+        <h4 class="territory">{{territory.name}}</h4>
     {% endfor %}
+    </div>
     <h3>Your Drafted Territories:</h3>
     {% for territory in territory_list %}
         {% if territory.owner == current_empire.id %}
@@ -32,14 +31,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
         var socket = io();
-        var game_id = document.getElementById("game").value;
-        /*socket.on('connect', function() {
-            socket.emit('draft', {data: game_id});
-        });*/
         
-        function draft() {
-            console.log(game_id)
-            socket.emit('draft', {"data": game_id})
-        }
+        var game_id = document.getElementById("game").value;
+        socket.on('connect', function() {
+            socket.emit('draft', {data: game_id});
+        });
+        socket.on('reconnect', function() {
+            socket.emit('draft', {data: game_id});
+        });
+        socket.on('refresh', function(game_id) {
+            var territories = document.getElementsByClassName("territory");
+            for (var ind = 0; ind < territories.length; ind++) {
+                territories[ind].style.color = "blue";
+            }
+            var div = document.getElementById("outer")
+            var str = "";
+            for (var ind = 0; ind < game_id['claims'].length; ind++) {
+                str += "<h4>" + game_id['claims'][ind] + "</h4>";
+            }
+            div.innerHTML = str;
+            wait = document.getElementById("wait");
+            draft_form = document.getElementById("draft_form");
+            round_counter = document.getElementById("round");
+            round_counter.innerHTML = "Drafting: Round " + game_id['round'];
+            console.log("Round number is " + game_id["round"])
+            if (game_id["is_turn"] == true) {
+                draft_form.style.display = "block";
+                wait.style.display = "none";
+            } else {
+                draft_form.style.display = "none";
+                wait.style.display = "block";
+            }
+        });
+        socket.on('detour', function(game_id) {
+            socket.emit('valid', game_id)
+        })
     </script>
 {% endblock %}
