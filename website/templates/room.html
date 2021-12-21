@@ -94,7 +94,7 @@
         str = "";
         for (var ind = 0; ind < game_id['empire_list'].length; ind++) {
             console.log('here!')
-            str += '<div><div class="box ' + game_id['empire_list'][ind][1] +'"></div><h3 class="empire">' + game_id['empire_list'][ind][0] + ' <a class="empire link" href=' + game_id['empire_list'][ind][3] + '>' + game_id['empire_list'][ind][2]+'</a></h3></div>';
+            str += '<div><div class="box ' + game_id['empire_list'][ind][1] +'"></div><h3 class="empire">' + game_id['empire_list'][ind][0] + ' <a class="empire link" href=' + game_id['empire_list'][ind][3] + '>(' + game_id['empire_list'][ind][2]+')</a></h3></div>';
         }
         console.log(str);
         emp_list.innerHTML = str;
