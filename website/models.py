@@ -1,17 +1,12 @@
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-import random
 from . import db
 
-#this is where the databases get the values that they will hold. All of them have to
-#have a primary key, which is how it tells the entries apart. This is why all of them
-#have an id column (its only ok to overwrite a keyword here because its in a class that
-#doesn't need it. its still not the best practice)
+
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_name = db.Column(db.String(25))
-    #The number is to tell it the max length of the string.
     is_started = db.Column(db.String(5))
     code = db.Column(db.String(10), unique=True)
     host = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -31,14 +26,29 @@ class Empires(db.Model):
     color = db.Column(db.String(7))
     gov = db.Column(db.String(50))
     flag = db.Column(db.String(50))
-    #You can use foreign keys to relate tables together
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     game = db.Column(db.Integer, db.ForeignKey('game.id'))
     oil_stockpiles = db.Column(db.Integer)
+    gold_stockpiles = db.Column(db.Integer)
     global_trade_power = db.Column(db.Integer)
     uranium = db.Column(db.Integer)
     enriched_uranium = db.Column(db.Integer)
     capital = db.Column(db.Integer, db.ForeignKey('territories.id'))
+    cash = db.Column(db.Integer)
+    total_inf = db.Column(db.Integer)
+    total_tank = db.Column(db.Integer)
+    total_transport = db.Column(db.Integer)
+    total_sub = db.Column(db.Integer)
+    total_bombers = db.Column(db.Integer)
+    total_fighters = db.Column(db.Integer)
+
+
+class Trade(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    party_1 = db.Column(db.Integer, db.ForeignKey('empires.id'))
+    party_2 = db.Column(db.Integer, db.ForeignKey('empires.id'))
+    category = db.Column(db.String(50))
+    amount =  db.Column(db.Integer)
 
 
 class Territories(db.Model):
@@ -105,7 +115,8 @@ class Diplo_Reqs(db.Model):
     receiver = db.Column(db.Integer, db.ForeignKey('empires.id'))
     type = db.Column(db.String(10))
 
-class Stats(db.Model):
+
+class StatsAllTime(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     wins = db.Column(db.Integer)
@@ -116,11 +127,19 @@ class Stats(db.Model):
     games_finished = db.Column(db.Integer)
     battles_won = db.Column(db.Integer)
     battles_done = db.Column(db.Integer)
-    #fav_color = db.Column(db.String(30))
-    #fav_gov = db.Column(db.String(50))
-    #fav_start_region = db.Column(db.String(50))
+    nukes_dropped = db.Column(db.Integer)
+    gov_changes = db.Column(db.Integer)
+    worst_defeat_lower = db.Column(db.Integer)
+    worst_defeat_higher = db.Column(db.Integer)
+    amt_spent_mil = db.Column(db.Integer)
+    total_inf_produce = db.Column(db.Integer)
 
-    
+
+class StatsInGame(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    empire = db.Column(db.Integer, db.ForeignKey('empires.id'))
+    trade_agree_total = db.Column(db.Integer)
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)

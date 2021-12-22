@@ -86,7 +86,6 @@ def room(game_id):
             color = request.form.get('color_input')
             gov = request.form.get('gov')
             flag1 = request.files['flag']
-            print(flag1.filename)
             flag2 = request.form.get('flag2')
             empire_query = Empires.query.filter_by(name=empire).first()
             color_query = Empires.query.filter_by(color=color, game=game_id)
@@ -100,7 +99,7 @@ def room(game_id):
                 flash('That color is in use.', category='error')
             else:
                 if flag1.filename != '':
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag1, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0, cash=0)
                     filename = str(current_user.id) + str(game_id) + ".png"
                     flag1.save(os.path.join('website/static/flags/uploaded/', filename))
                     image = Image.open(f'website/static/flags/uploaded/{filename}')
@@ -108,7 +107,7 @@ def room(game_id):
                     image.save(f'website/static/flags/uploaded/{filename}')
                     new_empire.flag = f'/static/flags/uploaded/{filename}'
                 else:
-                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0)
+                    new_empire = Empires(name=empire, user=current_user.id, game=game_id, color=color, gov=gov, flag=flag2, oil_stockpiles=0, global_trade_power=0, uranium = 0, enriched_uranium=0, capital=0, cash=0)
                 empire_query = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
                 if empire_query:
                     if empire_query.game == game_id:
@@ -613,26 +612,6 @@ def transport_calc(owner, game_id):
 
 def destroyer_calc(owner, game_id):
     pass
-
-
-def randomizer_pop():
-    return round(random.uniform(0.6, 1.4)*5072021)
-
-
-def randomizer_area():
-    return round(random.uniform(0.6, 1.4)*38103)
-
-
-def randomizer_gdp():
-    return round(random.uniform(0.6, 1.4)*89827668129)
-
-
-def randomizer_forts():
-    randomInt = random.randint(1, 20)
-    if randomInt == 1:
-        return 1
-    else:
-        return 0
 
 
 def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
