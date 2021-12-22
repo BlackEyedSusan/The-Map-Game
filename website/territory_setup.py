@@ -1,6 +1,26 @@
 from . import db
 from .models import Territories, Adjacencies
-from .rooms import randomizer_area, randomizer_forts, randomizer_gdp, randomizer_pop
+import random
+
+def randomizer_pop():
+    return round(random.uniform(0.6, 1.4)*5072021)
+
+
+def randomizer_area():
+    return round(random.uniform(0.6, 1.4)*38103)
+
+
+def randomizer_gdp():
+    return round(random.uniform(0.6, 1.4)*89827668129)
+
+
+def randomizer_forts():
+    randomInt = random.randint(1, 20)
+    if randomInt == 1:
+        return 1
+    else:
+        return 0
+
 
 def init_territories_random(game_id):
     alaska = Territories(name="Alaska", territory_id=1, owner=0, color="gray", game=game_id, gdp=randomizer_gdp(), area=randomizer_area(), pop=randomizer_pop(), forts=randomizer_forts(), oil="False", uranium="False", gold="False", coast="False", biome="Forest", region="")

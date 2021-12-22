@@ -1,0 +1,67 @@
+Date : 2021-12-21 19:11:46
+Directory : c:\Users\sword\Documents\GitHub\The-Map-Game\website
+Total : 37 files,  1937 codes, 41 comments, 274 blanks, all 2252 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Python     |          9 |      1,019 |         28 |        176 |      1,223 |
+| HTML       |         16 |        544 |          6 |         28 |        578 |
+| CSS        |          5 |        349 |          4 |         66 |        419 |
+| JavaScript |          7 |         25 |          3 |          4 |         32 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |         37 |      1,937 |         41 |        274 |      2,252 |
+| static                                                                              |         12 |        374 |          7 |         70 |        451 |
+| static\css                                                                          |          5 |        349 |          4 |         66 |        419 |
+| templates                                                                           |         16 |        544 |          6 |         28 |        578 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                            | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\__init__.py                    | Python     |         46 |          6 |         15 |         67 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\auth.py                        | Python     |         54 |          4 |         13 |         71 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\default_map.py                 | Python     |          0 |          0 |          1 |          1 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\docs.py                        | Python     |          9 |          0 |          3 |         12 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\models.py                      | Python     |        114 |          6 |         29 |        149 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\profiles.py                    | Python     |         84 |          0 |          7 |         91 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\rooms.py                       | Python     |        542 |          3 |         86 |        631 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\css\home.css            | CSS        |         74 |          0 |          8 |         82 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\css\main.css            | CSS        |        244 |          4 |         53 |        301 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\css\map.css             | CSS        |         18 |          0 |          4 |         22 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\css\profile.css         | CSS        |          6 |          0 |          0 |          6 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\css\room.css            | CSS        |          7 |          0 |          1 |          8 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\deceit.js               | JavaScript |          8 |          0 |          0 |          8 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\home.js                 | JavaScript |          0 |          1 |          0 |          1 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\index.js                | JavaScript |          0 |          1 |          0 |          1 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\json-jquery.js          | JavaScript |          7 |          0 |          0 |          7 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\map.js                  | JavaScript |          0 |          1 |          0 |          1 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\profile.js              | JavaScript |          5 |          0 |          2 |          7 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\static\rooms.js                | JavaScript |          5 |          0 |          2 |          7 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\404.html             | HTML       |          7 |          0 |          1 |          8 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\base.html            | HTML       |         71 |          5 |          1 |         77 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\create_game.html     | HTML       |         13 |          0 |          1 |         14 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\deceit.html          | HTML       |         34 |          0 |          3 |         37 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\diplomacy.html       | HTML       |         22 |          0 |          4 |         26 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\diplomacyplayer.html | HTML       |         36 |          0 |          7 |         43 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\docs.html            | HTML       |          5 |          0 |          0 |          5 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\draft.html           | HTML       |         69 |          0 |          1 |         70 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\friends.html         | HTML       |          9 |          0 |          1 |         10 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\home.html            | HTML       |         47 |          0 |          3 |         50 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\join_game.html       | HTML       |         13 |          0 |          1 |         14 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\login.html           | HTML       |         17 |          0 |          0 |         17 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\map.html             | HTML       |         34 |          0 |          2 |         36 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\profile.html         | HTML       |         39 |          1 |          1 |         41 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\room.html            | HTML       |        103 |          0 |          2 |        105 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\templates\sign_up.html         | HTML       |         25 |          0 |          0 |         25 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\territory_setup.py             | Python     |         81 |          0 |         13 |         94 |
+| c:\Users\sword\Documents\GitHub\The-Map-Game\website\views.py                       | Python     |         89 |          9 |          9 |        107 |
+| Total                                                                               |            |      1,937 |         41 |        274 |      2,252 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
