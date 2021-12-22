@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import User
+from .models import User, StatsAllTime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -62,6 +62,11 @@ def sign_up():
             #for example here, you generate a password hash so you cannot reverse engineer the password, which adds security
             new_user = User(email=email, username=username, password=generate_password_hash(password1, method='sha256'), pfp="/static/pfp/blank.png", admin="nope")
             db.session.add(new_user)
+            db.session.commit()
+            stats = StatsAllTime(user=new_user.id, wins=0, total_ally=0, total_betray=0, total_war=0, wars_won=0, games_finished=0,
+                                battles_won=0, battles_done=0, nukes_dropped=0, worst_defeat_lower=0, worst_defeat_higher=0, amt_spent_mil=0,
+                                total_inf_produce=0)
+            db.session.add(stats)
             db.session.commit()
             login_user(new_user, remember=True) #I haven't made remember user togglable yet,
             #but it wouldn't be too hard to add a checkbox here

@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, render_template, request, flash, url_for, redirect, jsonify
 from flask_login import login_required, current_user
-from .models import Game, GamesJoined, User, Empires, Friends
+from .models import Game, GamesJoined, StatsAllTime, User, Empires, Friends
 import os
 from PIL import Image
 from werkzeug.utils import secure_filename
@@ -66,7 +66,9 @@ def profile(user_id):
         is_current_user = True
     else:
         is_current_user = False
-    return render_template('profile.html', is_current=is_current_user, user=current_user, player=user, games_joined=counter, is_friends=is_friends)
+    stats = db.session.query(StatsAllTime).filter_by(user=user_id).first()
+    return render_template('profile.html', is_current=is_current_user, user=current_user, player=user, games_joined=counter,
+                             is_friends=is_friends, stats=stats)
 
 @login_required
 @profiles.route('friends')

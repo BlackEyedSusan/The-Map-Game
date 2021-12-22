@@ -13,6 +13,9 @@
 <h3>Stats:</h3>
 <ul>
     <li><h5>Games Joined: {{ games_joined }}</h5></li>
+    <li><h5>Wars Fought: {{ stats.total_war }}</h5></li>
+    <li><h5>Alliances Made: {{ stats.total_ally }}</h5></li>
+    <li><h5>Alliances Betrayed: {{ stats.total_betray }}</h5></li>
 </ul>
 <br/>
 {% if not is_current %}

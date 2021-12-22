@@ -118,7 +118,7 @@ class Diplo_Reqs(db.Model):
 
 class StatsAllTime(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
     wins = db.Column(db.Integer)
     total_ally = db.Column(db.Integer)
     total_betray = db.Column(db.Integer)
@@ -139,6 +139,23 @@ class StatsInGame(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     empire = db.Column(db.Integer, db.ForeignKey('empires.id'))
     trade_agree_total = db.Column(db.Integer)
+
+
+class SeaZones(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.Integer)
+
+
+class SeaZoneAdj(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sea_zone1 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
+    sea_zone2 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
+
+
+class Ports(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    territory = db.Column(db.Integer, db.ForeignKey('territories.id'))
+    sea_zone = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
 
 
 class User(db.Model, UserMixin):

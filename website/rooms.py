@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, url_for, redirect,
 from flask_login import login_required, current_user
 from sqlalchemy.orm.session import sessionmaker
 from werkzeug.local import F
-from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, Territories, User, Empires, Wars
+from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, StatsAllTime, Territories, User, Empires, Wars
 from . import db
 from flask_sqlalchemy import event
 from PIL import Image
@@ -386,6 +386,9 @@ def diplomacy(game_id):
 def request_accept(game_id, request_id, sender):
     current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
     diplo_action = db.session.query(Diplo_Reqs).filter_by(id=request_id).first()
+    stat = db.session.query(StatsAllTime).filter_by(user=current_empire.user).first()
+    sender_empire = db.session.query(Empires).filter_by(game=game_id, id=sender).first()
+    stat_sender = db.session.query(StatsAllTime).filter_by(user=sender_empire.user).first()
     if diplo_action.type == 'peace':
         war1 = db.session.query(Wars).filter_by(attacker=current_empire.id, defender=sender).first()
         war2 = db.session.query(Wars).filter_by(attacker=sender, defender=current_empire.id).first()
@@ -398,6 +401,8 @@ def request_accept(game_id, request_id, sender):
     if diplo_action.type == 'ally':
         alliance = Alliances(empire1 = current_empire.id, empire2 = sender)
         db.session.add(alliance)
+        stat.total_ally += 1
+        stat_sender.total_ally += 1
         db.session.commit()
         flash('You have accepted the request for an alliance.', category='success')
     db.session.delete(diplo_action)
@@ -423,10 +428,14 @@ def request_decline(game_id, request_id, sender):
 def diplomacyplayer(game_id, empire_id):
     target_empire = db.session.query(Empires).filter_by(id=empire_id).first()
     current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
+    curr_stat = db.session.query(StatsAllTime).filter_by(user=current_empire.user).first()
+    receiver_stat = db.session.query(StatsAllTime).filter_by(user=target_empire.user).first()
     if request.method == "POST":
         if str(request.form.get("declare_war")) == "declare_war":
             new_war = Wars(attacker=current_empire.id, defender=target_empire.id)
             db.session.add(new_war)
+            curr_stat.total_war += 1
+            receiver_stat.total_war += 1
             db.session.commit()
         if str(request.form.get("ally")) == "ally":
             new_ally_request = Diplo_Reqs(sender=current_empire.id, receiver=target_empire.id, type="ally")
@@ -455,6 +464,7 @@ def diplomacyplayer(game_id, empire_id):
                 db.session.delete(betrayal1)
             if betrayal2 != None:
                 db.session.delete(betrayal2)
+            curr_stat.total_betray += 1
             db.session.commit()
             flash(f'You have betrayed the {target_empire.name}...', category='success')
             return redirect(url_for('rooms.diplomacyplayer', game_id=game_id, empire_id=empire_id))
