@@ -78,6 +78,7 @@ class Adjacencies(db.Model):
 
 class Military(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    game = db.Column(db.Integer, db.ForeignKey('game.id'))
     owner = db.Column(db.Integer, db.ForeignKey('empires.id'))
     location = db.Column(db.Integer, db.ForeignKey('territories.id'))
     category = db.Column(db.String(9))
@@ -139,6 +140,12 @@ class StatsInGame(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     empire = db.Column(db.Integer, db.ForeignKey('empires.id'))
     trade_agree_total = db.Column(db.Integer)
+
+
+class Achievements(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    _5_wars = db.Column(db.String(5))
 
 
 class SeaZones(db.Model):

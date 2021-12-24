@@ -77,7 +77,7 @@ def updates(game_id):
     emit("update", {'data': game_id['data'], 'empire_list': empire_list})
 
 def run_mil():
-    schedule.every(1).minutes.do(rooms.add_infantry_daily)
+    print("thread!")
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -88,7 +88,7 @@ def threads_for_days():
 
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':
+    print("ran __name__ == __main__")
+    schedule.every(5).minutes.do(rooms.add_infantry_daily)
     threads_for_days()
     socketio.run(app, debug=False, host='localhost', port=5001, use_reloader=False) # http://localhost:5001/
-    
-

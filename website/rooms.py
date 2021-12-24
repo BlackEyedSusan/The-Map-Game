@@ -494,7 +494,9 @@ def diplomacyplayer(game_id, empire_id):
 @login_required
 @rooms.route('<int:game_id>/military')
 def military(game_id):
-    return render_template("military.html", user=current_user)
+    current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
+    infantry = db.session.query(Military).filter_by(game=game_id, owner=current_empire.id)
+    return render_template("military.html", user=current_user, infantry=infantry)
 
 
 
@@ -558,7 +560,7 @@ def is_turn(game_id):
 
 def infantry_calc(owner, game_id):
     args = [owner, game_id]
-    infantry = round(get_total_area(*args)/100000+get_total_pop(*args)/4000000+get_total_gdp(*args)/1000000000000) + round(get_total_forts(*args)/2)
+    infantry = round(get_total_pop(*args)/25000000 + get_total_pop(*args)/25000000 * get_total_gdp(*args)/20000000000000) + 2
     return infantry
 
 
@@ -632,35 +634,41 @@ def get_trade_power(owner, game_id):
 
 def tank_calc(owner, game_id):
     args = [owner, game_id]
-    tank = round(get_total_pop(*args)/40000000 + get_total_area(*args)/1000000 + get_trade_power(*args))
+    tank = round(get_total_pop(*args)/40000000 + get_total_pop(*args)/40000000 * get_total_gdp(*args)/4000000000000 + (get_oil_count(*args)/5))
     return tank
 
 def sub_calc(owner, game_id):
     args = [owner, game_id]
-    sub = round(get_coast_total(*args))
+    if get_coast_total(*args) == 0:
+        return 0
+    sub = round((get_total_pop(*args)/75000000 + (get_total_pop(*args)/75000000 * get_total_gdp(*args)/30000000000000)*get_coast_total(*args)/3)/4 + get_oil_count(*args)/5 + get_uranium_count(*args))
     return sub
 
 def transport_calc(owner, game_id):
     args = [owner, game_id]
+    if get_coast_total(*args) == 0:
+        return 0
     transport = round(get_coast_total(*args)*(get_trade_power(*args)+get_oil_count(*args))*0.0001)+round(get_total_forts(*args)/4)+round(get_total_pop(*args)/10000000)
     return transport
 
 
 def destroyer_calc(owner, game_id):
     args = [owner, game_id]
-    destroyer = 0
+    if get_coast_total(*args) == 0:
+        return 0
+    destroyer = round(((get_total_pop(*args)/75000000 + get_total_pop(*args)/75000000 * get_total_gdp(*args)/30000000000000)*get_coast_total(*args)/3)/5 + get_oil_count(*args)/3)
     return destroyer
 
 
 def bomber_calc(owner, game_id):
     args = [owner, game_id]
-    bomber = 0
+    bomber = round(((get_total_pop(*args)/120000000 * get_total_gdp(*args)/300000000000000 + get_total_area(*args)/600000)/5)+get_oil_count(*args)/15)
     return bomber
 
 
 def fighter_calc(owner,game_id):
     args = [owner, game_id]
-    fighter = 0
+    fighter = round(get_total_pop(*args)/120000000 * get_total_gdp(*args)/30000000000000 + get_total_area(*args)/600000 + get_oil_count(*args)/5)
     return fighter
 
 
@@ -687,7 +695,8 @@ def add_infantry_daily():
                     continue
             else:
                 empire.total_inf += inf_prod
-            new_inf = Military(owner=empire.id, location=empire.capital, category="ground", type="infantry", amount=inf_prod)
+            print("Adding infantry!")
+            new_inf = Military(owner=empire.id, location=empire.capital, game=empire.game, category="ground", type="infantry", amount=inf_prod)
             db.session.add(new_inf)
             db.session.commit()
 

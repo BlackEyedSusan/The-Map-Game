@@ -31,6 +31,7 @@
             ">
     
     <h4><a class="link" href="{{url_for('rooms.diplomacy', game_id=game_id)}}">Diplomacy</a></h4>
+    <h4><a class="link" href="{{url_for('rooms.military', game_id=game_id)}}">Military Overview</a></h4>
     {% for territory in territory_list %}
         <div class="overlay">{{territory.name}}</div>
     {% endfor %}
