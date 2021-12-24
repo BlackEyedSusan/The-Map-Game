@@ -8,6 +8,18 @@
 <br/>
 <h2>Infantry Production:</h2>
 <p>{{infantry}} units/day</p>
+<h2>Tank Production:</h2>
+<p>{{tanks}} units/day</p>
+<h2>Transport Production:</h2>
+<p>{{transport}} units/day</p>
+<h2>Submarine Production:</h2>
+<p>{{sub}} units/day</p>
+<h2>Destroyer Production:</h2>
+<p>{{destroyer}} units/day</p>
+<h2>Fighter Production:</h2>
+<p>{{fighter}} units/day</p>
+<h2>Bomber Production:</h2>
+<p>{{bomber}} units/day</p>
 <div style="width: 100%;
             height: 10%;
             margin: 0;
@@ -23,6 +35,7 @@
         <div class="overlay">{{territory.name}}</div>
     {% endfor %}
 </div>
+<h3>Total Infantry: {{current_empire.total_inf}}</h3>
 <div id="containers" style="overflow: hidden;">
     {% for territory in territory_list %}
         <h2>{{territory.name}}</h2>

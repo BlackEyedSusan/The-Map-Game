@@ -2,15 +2,17 @@ from flask import Blueprint, render_template, request, flash, url_for, redirect,
 from flask_login import login_required, current_user
 from sqlalchemy.orm.session import sessionmaker
 from werkzeug.local import F
-from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Puppets, StatsAllTime, Territories, User, Empires, Wars
+from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Military, Puppets, StatsAllTime, Territories, User, Empires, Wars
 from . import db
 from flask_sqlalchemy import event
 from PIL import Image
 import os
-import random
-from flask_socketio import SocketIO, send, emit
+import schedule
 Session = sessionmaker()
 from .territory_setup import init_territories_random
+from threading import Thread, Timer
+import time
+
 
 
 rooms = Blueprint('rooms', __name__)
@@ -319,19 +321,16 @@ def map(game_id):
     territory_list = []
     for territory in db.session.query(Territories).filter_by(game=game_id):
         territory_list.append(territory)
-    total_area = 0
-    total_pop = 0
-    total_gdp = 0
-    total_forts = 0
-    for territory in db.session.query(Territories).filter_by(game=game_id, owner=current_empire.id):
-        total_area += territory.area
-        total_pop += territory.pop
-        total_gdp += territory.gdp
-        total_forts += territory.forts
-    infantry = infantry_calc(total_area, total_pop, total_gdp, total_forts)
+    infantry = infantry_calc(current_empire.id, game_id)
+    transport = transport_calc(current_empire.id, game_id)
+    sub = sub_calc(current_empire.id, game_id)
+    tanks = tank_calc(current_empire.id, game_id)
+    bomber = bomber_calc(current_empire.id, game_id)
+    fighter = fighter_calc(current_empire.id, game_id)
+    destroyer = destroyer_calc(current_empire.id, game_id)
     return render_template("map.html", user=current_user, territory_list=territory_list, players = players_output, game = games, game_id = id, empire_key=empires, is_host=is_host,
                             used_colors=empire_colors, colors=colors, id=id, current_empire=current_empire, avail_colors=avail_colors, current_color=current_color, govs=governments,
-                            current_gov=current_gov, infantry=infantry)
+                            current_gov=current_gov, infantry=infantry, transport=transport, sub=sub, tanks=tanks, bomber=bomber, destroyer=destroyer, fighter=fighter)
 
 
 
@@ -489,6 +488,17 @@ def diplomacyplayer(game_id, empire_id):
         is_controller = True
     return render_template("diplomacyplayer.html", user=current_user, target_empire=target_empire, current_empire=current_empire, at_war=at_war, allied=allied, is_puppet=is_puppet, is_controller=is_controller)
 
+
+
+
+@login_required
+@rooms.route('<int:game_id>/military')
+def military(game_id):
+    return render_template("military.html", user=current_user)
+
+
+
+
 def is_adjacent(territory_1, territory_2):
     check1 = db.session.query(Adjacencies).filter_by(territory_1=territory_1.id, territory_2=territory_2.id).first()
     check2 = db.session.query(Adjacencies).filter_by(territory_1=territory_2.id, territory_2=territory_1.id).first()
@@ -546,8 +556,9 @@ def is_turn(game_id):
     return is_turn
 
 
-def infantry_calc(area, pop, gdp, forts):
-    infantry = round(area/100000+pop/4000000+gdp/1000000000000) + round(forts/2)
+def infantry_calc(owner, game_id):
+    args = [owner, game_id]
+    infantry = round(get_total_area(*args)/100000+get_total_pop(*args)/4000000+get_total_gdp(*args)/1000000000000) + round(get_total_forts(*args)/2)
     return infantry
 
 
@@ -557,6 +568,14 @@ def get_oil_count(owner, game_id):
         if territory.oil == "True":
             count += 1
     return count
+
+
+def get_coast_total(owner, game_id):
+    coast = 0
+    for territory in db.session.query(Territories).filter_by(game=game_id, owner=owner):
+        if territory.coast == "True":
+            coast += 1
+    return coast
 
 
 def get_gold_count(owner, game_id):
@@ -604,24 +623,45 @@ def get_total_forts(owner, game_id):
 
 
 def get_trade_power(owner, game_id):
-    pass
+    current_empire = db.session.query(Empires).filter_by(id=owner, game=game_id).first()
+    args = [owner, game_id]
+    trade_power = (get_total_gdp(*args)/1000000000000)+(get_gold_count(*args)/3)+(get_oil_count(*args))
+    print("Trade power is at: " + str(trade_power))
+    return trade_power
 
 
 def tank_calc(owner, game_id):
     args = [owner, game_id]
     tank = round(get_total_pop(*args)/40000000 + get_total_area(*args)/1000000 + get_trade_power(*args))
-
+    return tank
 
 def sub_calc(owner, game_id):
-    pass
-
+    args = [owner, game_id]
+    sub = round(get_coast_total(*args))
+    return sub
 
 def transport_calc(owner, game_id):
-    pass
+    args = [owner, game_id]
+    transport = round(get_coast_total(*args)*(get_trade_power(*args)+get_oil_count(*args))*0.0001)+round(get_total_forts(*args)/4)+round(get_total_pop(*args)/10000000)
+    return transport
 
 
 def destroyer_calc(owner, game_id):
-    pass
+    args = [owner, game_id]
+    destroyer = 0
+    return destroyer
+
+
+def bomber_calc(owner, game_id):
+    args = [owner, game_id]
+    bomber = 0
+    return bomber
+
+
+def fighter_calc(owner,game_id):
+    args = [owner, game_id]
+    fighter = 0
+    return fighter
 
 
 def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
@@ -633,5 +673,21 @@ def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
     db.session.add(nunavut)
     db.session.commit()
 
-
+def add_infantry_daily():
+    from main import create_app
+    app = create_app()
+    with app.app_context():
+        for empire in db.session.query(Empires):
+            inf_prod = infantry_calc(empire.id, empire.game)
+            game = db.session.query(Game).filter_by(id=empire.game).first()
+            if empire.total_inf == None:
+                if game.is_started == "True":
+                    empire.total_inf = inf_prod
+                else:
+                    continue
+            else:
+                empire.total_inf += inf_prod
+            new_inf = Military(owner=empire.id, location=empire.capital, category="ground", type="infantry", amount=inf_prod)
+            db.session.add(new_inf)
+            db.session.commit()
 

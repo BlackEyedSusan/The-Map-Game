@@ -10,6 +10,11 @@ from flask_login import current_user
 import website.rooms as rooms
 from website import db
 from website.models import Game
+import schedule
+from threading import Thread
+import time
+global count
+count = False
 
 app = create_app()
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -71,8 +76,19 @@ def updates(game_id):
     empire_list = rooms.get_empire_list(game_id)
     emit("update", {'data': game_id['data'], 'empire_list': empire_list})
 
+def run_mil():
+    schedule.every(1).minutes.do(rooms.add_infantry_daily)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
+def threads_for_days():
+    thread = Thread(target=run_mil, daemon=True)
+    thread.start()
 
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='localhost', port=5001) # http://localhost:5001/
+    threads_for_days()
+    socketio.run(app, debug=False, host='localhost', port=5001, use_reloader=False) # http://localhost:5001/
+    
+

@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_socketio import SocketIO
+import schedule
 #these are the different imports used to create the database, create the web server,
 #and handle certain things with logging in and out.
 
@@ -64,4 +65,5 @@ def create_app():
 def create_database(app):
     if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
-        print('Created Database.')   
+        print('Created Database.')
+
