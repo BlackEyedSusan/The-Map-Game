@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, url_for, redirect,
 from flask_login import login_required, current_user
 from sqlalchemy.orm.session import sessionmaker
 from werkzeug.local import F
-from .models import Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Military, Puppets, StatsAllTime, Territories, User, Empires, Wars
+from .models import Achievements, Adjacencies, Alliances, Diplo_Reqs, Game, GamesJoined, Military, Puppets, SeaZoneAdj, SeaZones, StatsAllTime, Territories, User, Empires, Wars
 from . import db
 from flask_sqlalchemy import event
 from PIL import Image
@@ -429,12 +429,16 @@ def diplomacyplayer(game_id, empire_id):
     current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
     curr_stat = db.session.query(StatsAllTime).filter_by(user=current_empire.user).first()
     receiver_stat = db.session.query(StatsAllTime).filter_by(user=target_empire.user).first()
+    curr_achieve = db.session.query(Achievements).filter_by(user=target_empire.user).first()
     if request.method == "POST":
         if str(request.form.get("declare_war")) == "declare_war":
             new_war = Wars(attacker=current_empire.id, defender=target_empire.id)
             db.session.add(new_war)
             curr_stat.total_war += 1
             receiver_stat.total_war += 1
+            if curr_stat.total_war >= 5:
+                curr_achieve._5_wars = "True"
+                flash("Achievement Unlocked! Take part in five wars.", category="neutral")
             db.session.commit()
         if str(request.form.get("ally")) == "ally":
             new_ally_request = Diplo_Reqs(sender=current_empire.id, receiver=target_empire.id, type="ally")
@@ -496,8 +500,44 @@ def diplomacyplayer(game_id, empire_id):
 def military(game_id):
     current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
     infantry = db.session.query(Military).filter_by(game=game_id, owner=current_empire.id)
+    if request.method == "POST":
+        start = request.form.get("start")
+        end = request.form.get("end")
+        s_zone = None
+        e_zone = None
+        for zone in db.session.query(SeaZones).filter_by(game=game_id):
+            if zone.name == start:
+                s_zone = start
+            if zone.name == end:
+                e_zone = end
+        
+
     return render_template("military.html", user=current_user, infantry=infantry)
 
+def calc_naval_movement(game_id, start, end):
+    adjs = db.session.query(SeaZoneAdj).filter_by(game=game_id)
+    zones = db.session.query(SeaZones).filter_by(game=game_id)
+    starter = []
+    _1away = []
+    for zone in zones:
+        if zone.id == start.id:
+            starter.append([zone, 0])
+            continue
+        for adj in db.session.query(SeaZoneAdj).filter_by(game=game_id, sea_zone1=start.id):
+            if adj.sea_zone2 == zone.id:
+                _1away.append([zone, 1])
+                continue
+        for adj in db.session.query(SeaZoneAdj).filter_by(game=game_id, sea_zone2=start.id):
+            if adj.sea_zone1 == zone.id:
+                _1away.append([zone, 1])
+                continue
+    if end in _1away:
+        return start.time + end.time
+    if end in starter:
+        return end.time
+    for zone in zones:
+        for close in _1away:
+            for 
 
 
 

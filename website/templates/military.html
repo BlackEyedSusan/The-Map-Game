@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% block title %}Military Overview{% endblock %}
 {% block content %}
+<h2>Naval Movement Calculator</h2>
+<form method="post">
+    <input type="text" id="start" name="start"/>
+    <input type="text" id="end" name="end"/>
+    <input type="submit" value="Calculate"/>
+</form>
 <h2>Infantry:</h2>
 {% for unit in infantry %}
 <p>unit</p>

@@ -166,6 +166,7 @@ class SeaZoneAdj(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sea_zone1 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
     sea_zone2 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
+    game = db.Column(db.Integer, db.ForeignKey('game.id'))
 
 
 class Ports(db.Model):
