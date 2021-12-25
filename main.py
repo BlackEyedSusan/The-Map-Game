@@ -89,6 +89,6 @@ def threads_for_days():
 #makes it so it only runs the app if it is done specifically by this file
 if __name__ == '__main__':
     print("ran __name__ == __main__")
-    schedule.every(5).minutes.do(rooms.add_infantry_daily)
+    schedule.every(5).minutes.do(rooms.daily_events)
     threads_for_days()
     socketio.run(app, debug=False, host='localhost', port=5001, use_reloader=False) # http://localhost:5001/

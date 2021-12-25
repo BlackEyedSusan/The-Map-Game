@@ -86,6 +86,13 @@ class Military(db.Model):
     amount = db.Column(db.Integer)
 
 
+class Canals(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    territory = db.Column(db.Integer, db.ForeignKey('territories.id'))
+    sea_zone1 = db.Column(db.Integer, db.ForeignKey('sea_zone.id'))
+    sea_zone2 = db.Column(db.Integer, db.ForeignKey('sea_zone.id'))
+
+
 class Wars(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     attacker = db.Column(db.Integer, db.ForeignKey('empires.id'))
@@ -150,7 +157,9 @@ class Achievements(db.Model):
 
 class SeaZones(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(35))
     time = db.Column(db.Integer)
+    game = db.Column(db.Integer, db.ForeignKey('game.id'))
 
 
 class SeaZoneAdj(db.Model):

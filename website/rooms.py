@@ -681,9 +681,10 @@ def init_territories_default(game_id, DEFAULT_OWNER=0, DEFAULT_COLOR="gray"):
     db.session.add(nunavut)
     db.session.commit()
 
-def add_infantry_daily():
+def daily_events():
     from main import create_app
     app = create_app()
+    print("5 minutes passed!")
     with app.app_context():
         for empire in db.session.query(Empires):
             inf_prod = infantry_calc(empire.id, empire.game)
@@ -695,8 +696,9 @@ def add_infantry_daily():
                     continue
             else:
                 empire.total_inf += inf_prod
-            print("Adding infantry!")
             new_inf = Military(owner=empire.id, location=empire.capital, game=empire.game, category="ground", type="infantry", amount=inf_prod)
             db.session.add(new_inf)
             db.session.commit()
-
+        for territory in db.session.query(Territories):
+            territory.pop = round(1.015*territory.pop)
+            db.session.commit()

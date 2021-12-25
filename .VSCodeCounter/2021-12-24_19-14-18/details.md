@@ -1,23 +1,23 @@
 # Details
 
-Date : 2021-12-21 19:11:46
+Date : 2021-12-24 19:14:18
 
 Directory c:\Users\sword\Documents\GitHub\The-Map-Game\website
 
-Total : 37 files,  1937 codes, 41 comments, 274 blanks, all 2252 lines
+Total : 38 files,  2107 codes, 35 comments, 298 blanks, all 2440 lines
 
 [summary](results.md)
 
 ## Files
 | filename | language | code | comment | blank | total |
 | :--- | :--- | ---: | ---: | ---: | ---: |
-| [website/__init__.py](/website/__init__.py) | Python | 46 | 6 | 15 | 67 |
-| [website/auth.py](/website/auth.py) | Python | 54 | 4 | 13 | 71 |
+| [website/__init__.py](/website/__init__.py) | Python | 47 | 6 | 17 | 70 |
+| [website/auth.py](/website/auth.py) | Python | 59 | 4 | 13 | 76 |
 | [website/default_map.py](/website/default_map.py) | Python | 0 | 0 | 1 | 1 |
 | [website/docs.py](/website/docs.py) | Python | 9 | 0 | 3 | 12 |
-| [website/models.py](/website/models.py) | Python | 114 | 6 | 29 | 149 |
-| [website/profiles.py](/website/profiles.py) | Python | 84 | 0 | 7 | 91 |
-| [website/rooms.py](/website/rooms.py) | Python | 542 | 3 | 86 | 631 |
+| [website/models.py](/website/models.py) | Python | 143 | 0 | 40 | 183 |
+| [website/profiles.py](/website/profiles.py) | Python | 86 | 0 | 7 | 93 |
+| [website/rooms.py](/website/rooms.py) | Python | 609 | 3 | 94 | 706 |
 | [website/static/css/home.css](/website/static/css/home.css) | CSS | 74 | 0 | 8 | 82 |
 | [website/static/css/main.css](/website/static/css/main.css) | CSS | 244 | 4 | 53 | 301 |
 | [website/static/css/map.css](/website/static/css/map.css) | CSS | 18 | 0 | 4 | 22 |
@@ -42,11 +42,12 @@ Total : 37 files,  1937 codes, 41 comments, 274 blanks, all 2252 lines
 | [website/templates/home.html](/website/templates/home.html) | HTML | 47 | 0 | 3 | 50 |
 | [website/templates/join_game.html](/website/templates/join_game.html) | HTML | 13 | 0 | 1 | 14 |
 | [website/templates/login.html](/website/templates/login.html) | HTML | 17 | 0 | 0 | 17 |
-| [website/templates/map.html](/website/templates/map.html) | HTML | 34 | 0 | 2 | 36 |
-| [website/templates/profile.html](/website/templates/profile.html) | HTML | 39 | 1 | 1 | 41 |
+| [website/templates/map.html](/website/templates/map.html) | HTML | 48 | 0 | 2 | 50 |
+| [website/templates/military.html](/website/templates/military.html) | HTML | 8 | 0 | 0 | 8 |
+| [website/templates/profile.html](/website/templates/profile.html) | HTML | 42 | 1 | 1 | 44 |
 | [website/templates/room.html](/website/templates/room.html) | HTML | 103 | 0 | 2 | 105 |
 | [website/templates/sign_up.html](/website/templates/sign_up.html) | HTML | 25 | 0 | 0 | 25 |
-| [website/territory_setup.py](/website/territory_setup.py) | Python | 81 | 0 | 13 | 94 |
+| [website/territory_setup.py](/website/territory_setup.py) | Python | 122 | 0 | 16 | 138 |
 | [website/views.py](/website/views.py) | Python | 89 | 9 | 9 | 107 |
 
 [summary](results.md)
