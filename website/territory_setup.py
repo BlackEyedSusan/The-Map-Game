@@ -132,7 +132,9 @@ def init_territories_random(game_id):
     sea_zone_list.append(SeaZones(name="Gulf of California", time=120, game=game_id))
     for item in sea_zone_list:
         db.session.add(item)
+    db.session.commit()
     sea_adj = []
+    print(sea_zone_list[0])
     sea_adj.append(SeaZoneAdj(sea_zone1=sea_zone_list[0].id, sea_zone2=sea_zone_list[1].id, game=game_id))
     sea_adj.append(SeaZoneAdj(sea_zone1=sea_zone_list[1].id, sea_zone2=sea_zone_list[2].id, game=game_id))
     sea_adj.append(SeaZoneAdj(sea_zone1=sea_zone_list[1].id, sea_zone2=sea_zone_list[3].id, game=game_id))

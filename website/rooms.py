@@ -12,6 +12,7 @@ Session = sessionmaker()
 from .territory_setup import init_territories_random
 from threading import Thread, Timer
 import time
+import sys
 
 
 
@@ -496,49 +497,61 @@ def diplomacyplayer(game_id, empire_id):
 
 
 @login_required
-@rooms.route('<int:game_id>/military')
+@rooms.route('<int:game_id>/military', methods=['GET', 'POST'])
 def military(game_id):
     current_empire = db.session.query(Empires).filter_by(game=game_id, user=current_user.id).first()
     infantry = db.session.query(Military).filter_by(game=game_id, owner=current_empire.id)
     if request.method == "POST":
         start = request.form.get("start")
         end = request.form.get("end")
-        s_zone = None
-        e_zone = None
-        for zone in db.session.query(SeaZones).filter_by(game=game_id):
-            if zone.name == start:
-                s_zone = start
-            if zone.name == end:
-                e_zone = end
+        flash("That would take " + str(calc_naval_movement(game_id, start, end)) + " minutes", category="neutral")
         
 
     return render_template("military.html", user=current_user, infantry=infantry)
 
+#Dijkstra's Algorithm
 def calc_naval_movement(game_id, start, end):
-    adjs = db.session.query(SeaZoneAdj).filter_by(game=game_id)
+    start_z = db.session.query(SeaZones).filter_by(game=game_id, name=start).first()
+    end_z = db.session.query(SeaZones).filter_by(game=game_id, name=end).first()
     zones = db.session.query(SeaZones).filter_by(game=game_id)
-    starter = []
-    _1away = []
+    short_way = {}
+    prev_zones = {}
+    unchecked = [] 
     for zone in zones:
-        if zone.id == start.id:
-            starter.append([zone, 0])
-            continue
-        for adj in db.session.query(SeaZoneAdj).filter_by(game=game_id, sea_zone1=start.id):
-            if adj.sea_zone2 == zone.id:
-                _1away.append([zone, 1])
-                continue
-        for adj in db.session.query(SeaZoneAdj).filter_by(game=game_id, sea_zone2=start.id):
-            if adj.sea_zone1 == zone.id:
-                _1away.append([zone, 1])
-                continue
-    if end in _1away:
-        return start.time + end.time
-    if end in starter:
-        return end.time
-    for zone in zones:
-        for close in _1away:
-            for 
+        unchecked.append(zone)
+    max = sys.maxsize
+    for zone in unchecked:
+        short_way[zone] = max
+    short_way[start_z] = 0
 
+    while unchecked:
+        min_zone = None
+        for zone in unchecked:
+            if min_zone == None:
+                min_zone = zone
+            elif short_way[zone] < short_way[min_zone]:
+                min_zone = zone
+        print("Min Zone " + str(min_zone.name) + " " + str(short_way[min_zone]))
+        unchecked.remove(min_zone)
+        adjs = get_neighbor_sea_zones(game_id, min_zone)
+        for adj in adjs:
+            val = short_way[min_zone] + adj.time
+            if val < short_way[adj]:
+                short_way[adj] = val
+                prev_zones[adj] = min_zone
+    return short_way[end_z]
+
+
+   
+
+def get_neighbor_sea_zones(game_id, sea_zone):
+    zone_list = []
+    zone = db.session.query(SeaZones).filter_by(id=sea_zone.id).first()
+    for zone in db.session.query(SeaZoneAdj).filter_by(sea_zone1 = zone.id).all():
+        zone_list.append(db.session.query(SeaZones).filter_by(game=game_id, id=zone.sea_zone2).first())
+    for zone in db.session.query(SeaZoneAdj).filter_by(game=game_id, sea_zone2 = sea_zone.id).all():
+        zone_list.append(db.session.query(SeaZones).filter_by(game=game_id, id=zone.sea_zone1).first())
+    return zone_list
 
 
 def is_adjacent(territory_1, territory_2):

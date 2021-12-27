@@ -89,8 +89,8 @@ class Military(db.Model):
 class Canals(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     territory = db.Column(db.Integer, db.ForeignKey('territories.id'))
-    sea_zone1 = db.Column(db.Integer, db.ForeignKey('sea_zone.id'))
-    sea_zone2 = db.Column(db.Integer, db.ForeignKey('sea_zone.id'))
+    sea_zone1 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
+    sea_zone2 = db.Column(db.Integer, db.ForeignKey('sea_zones.id'))
 
 
 class Wars(db.Model):
